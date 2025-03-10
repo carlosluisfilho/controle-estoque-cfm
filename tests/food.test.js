@@ -12,8 +12,11 @@ beforeAll(async () => {
   token = res.body.token; // Armazena o token para usar nos testes
 });
 
-afterAll(() => {
-  server.close(); // Fecha o servidor após os testes
+afterAll((done) => {
+  server.close(() => {
+      console.log("✅ Servidor de testes encerrado.");
+      done();
+  });
 });
 
 describe('🍽️ Testes do CRUD de Alimentos', () => {

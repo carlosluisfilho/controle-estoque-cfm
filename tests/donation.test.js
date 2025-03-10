@@ -14,8 +14,11 @@ beforeAll(async () => {
   token = res.body.token;
 });
 
-afterAll(() => {
-  server.close();
+afterAll((done) => {
+  server.close(() => {
+      console.log("✅ Servidor de testes encerrado.");
+      done();
+  });
 });
 
 describe("🎁 Testes de CRUD de Doações", () => {

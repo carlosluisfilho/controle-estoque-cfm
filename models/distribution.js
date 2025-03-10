@@ -1,11 +1,17 @@
+// Importa os módulos necessários
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 const db = require('../database/db'); // Conexão com o SQLite
+const fs = require('fs');
 
-// Gera o relatório em PDF
+/**
+ * Gera o relatório em PDF.
+ * 
+ * @param {string} caminhoArquivo - O caminho do arquivo onde o relatório será salvo.
+ * @returns {Promise<void>} - Uma promessa que é resolvida quando o relatório é gerado.
+ */
 async function gerarRelatorioPDF(caminhoArquivo) {
   const doc = new PDFDocument();
-  const fs = require('fs');
   const stream = fs.createWriteStream(caminhoArquivo);
 
   doc.pipe(stream);
@@ -13,23 +19,32 @@ async function gerarRelatorioPDF(caminhoArquivo) {
   doc.fontSize(18).text('Relatório de Doações', { align: 'center' });
   doc.moveDown();
 
-  const doacoes = await consultarDoacoes();
-  doc.fontSize(12).text('ID | Alimento | Quantidade | Doador | Data');
-  doc.moveDown();
+  try {
+    const doacoes = await consultarDoacoes();
+    doc.fontSize(12).text('ID | Alimento | Quantidade | Doador | Data');
+    doc.moveDown();
 
-  doacoes.forEach(doacao => {
-    const linha = `${doacao.id} | ${doacao.food_name} | ${doacao.quantity} | ${doacao.donor_name || 'Anônimo'} | ${doacao.created_at}`;
-    doc.text(linha);
-  });
+    doacoes.forEach(doacao => {
+      const linha = `${doacao.id} | ${doacao.food_name} | ${doacao.quantity} | ${doacao.donor_name || 'Anônimo'} | ${doacao.created_at}`;
+      doc.text(linha);
+    });
 
-  doc.end();
+    doc.end();
 
-  return new Promise(resolve => {
-    stream.on('finish', resolve);
-  });
+    return new Promise(resolve => {
+      stream.on('finish', resolve);
+    });
+  } catch (err) {
+    console.error("❌ Erro ao gerar relatório PDF:", err.message);
+  }
 }
 
-// Gera o relatório em Excel
+/**
+ * Gera o relatório em Excel.
+ * 
+ * @param {string} caminhoArquivo - O caminho do arquivo onde o relatório será salvo.
+ * @returns {Promise<void>} - Uma promessa que é resolvida quando o relatório é gerado.
+ */
 async function gerarRelatorioExcel(caminhoArquivo) {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Relatório de Doações');
@@ -43,18 +58,26 @@ async function gerarRelatorioExcel(caminhoArquivo) {
     { header: 'Data', key: 'created_at', width: 25 }
   ];
 
-  const doacoes = await consultarDoacoes();
+  try {
+    const doacoes = await consultarDoacoes();
 
-  // Adicionar linhas
-  doacoes.forEach(doacao => worksheet.addRow(doacao));
+    // Adicionar linhas
+    doacoes.forEach(doacao => worksheet.addRow(doacao));
 
-  await workbook.xlsx.writeFile(caminhoArquivo);
+    await workbook.xlsx.writeFile(caminhoArquivo);
+  } catch (err) {
+    console.error("❌ Erro ao gerar relatório Excel:", err.message);
+  }
 }
 
-// Consulta doações no banco de dados
+/**
+ * Consulta doações no banco de dados.
+ * 
+ * @returns {Promise<Array>} - Uma promessa que é resolvida com as doações consultadas.
+ */
 async function consultarDoacoes() {
   return new Promise((resolve, reject) => {
-    const sql = 'SELECT * FROM doacoes';
+    const sql = 'SELECT * FROM donation';
     db.all(sql, [], (err, rows) => {
       if (err) {
         reject(err);
@@ -65,4 +88,5 @@ async function consultarDoacoes() {
   });
 }
 
+// Exporta as funções para serem usadas em outras partes da aplicação
 module.exports = { gerarRelatorioPDF, gerarRelatorioExcel };

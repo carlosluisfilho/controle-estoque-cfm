@@ -31,6 +31,7 @@ app.use('/distribution', autenticarToken, distributionRoutes);
 app.use('/dashboard', autenticarToken, dashboardRoutes);  // **Verifique se dashboardRoutes não é undefined**
 
 const PORT = process.env.PORT || 3001;
+
 const server = app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });

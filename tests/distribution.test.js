@@ -5,6 +5,7 @@ let token;
 let createdFoodId;
 let distributionId;
 
+
 beforeAll(async () => {
   console.log("🔑 Obtendo token de autenticação...");
   
@@ -20,20 +21,10 @@ beforeAll(async () => {
   token = res.body.token;
 });
 
-afterAll(async () => {
-  console.log("🛑 Encerrando servidor de testes...");
-  
-  // Garantir que o servidor seja fechado corretamente
-  await new Promise((resolve, reject) => {
-    server.close((err) => {
-      if (err) {
-        console.error("❌ Erro ao encerrar o servidor:", err.message);
-        reject(err);
-      } else {
-        console.log("✅ Servidor de testes encerrado.");
-        resolve();
-      }
-    });
+afterAll((done) => {
+  server.close(() => {
+      console.log("✅ Servidor de testes encerrado.");
+      done();
   });
 });
 
