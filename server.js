@@ -11,6 +11,7 @@ const foodRoutes = require('./routes/food');
 const donationRoutes = require('./routes/donation');
 const distributionRoutes = require('./routes/distribution');
 const dashboardRoutes = require('./routes/dashboard'); // 🔥 Verifique se esse arquivo existe
+const inventoryRoutes = require("./routes/inventory");
 
 app.use(bodyParser.json());
 
@@ -29,6 +30,7 @@ app.use('/food', autenticarToken, foodRoutes);
 app.use('/donation', autenticarToken, donationRoutes);
 app.use('/distribution', autenticarToken, distributionRoutes);
 app.use('/dashboard', autenticarToken, dashboardRoutes);  // **Verifique se dashboardRoutes não é undefined**
+app.use("/inventory", autenticarToken, inventoryRoutes);
 
 const PORT = process.env.PORT || 3001;
 

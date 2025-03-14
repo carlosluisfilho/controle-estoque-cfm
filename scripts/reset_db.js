@@ -11,13 +11,19 @@ db.serialize(() => {
 
 
   // Criar tabela de alimentos (Corrigindo para INTEGER)
+  // Cria a tabela 'food' apenas se ela não existir
   db.run(`
-    CREATE TABLE food (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      quantity INTEGER NOT NULL DEFAULT 0 -- ✅ Garante que a quantidade seja um número
+    CREATE TABLE IF NOT EXISTS food (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 0,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `, (err) => {
+    if (err) {
+        console.error("❌ Erro ao criar a tabela 'food':", err.message);
+    }
+  });
 
   // Criar tabela de doações
   db.run(`
