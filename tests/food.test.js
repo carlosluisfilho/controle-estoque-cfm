@@ -14,10 +14,10 @@ beforeAll(async () => {
 
 afterAll((done) => {
   server.close(() => {
-      console.log("✅ Servidor de testes encerrado.");
-      done();
+    done();
   });
 });
+
 
 describe('🍽️ Testes do CRUD de Alimentos', () => {
 

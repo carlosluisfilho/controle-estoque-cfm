@@ -23,10 +23,10 @@ beforeAll(async () => {
 
 afterAll((done) => {
   server.close(() => {
-      console.log("✅ Servidor de testes encerrado.");
-      done();
+    done();
   });
 });
+
 
 describe("🛒 API de Distribuição de Doações", () => {
   test("✅ Deve registrar uma distribuição para casa de missão", async () => {

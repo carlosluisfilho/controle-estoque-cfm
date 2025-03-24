@@ -16,10 +16,10 @@ beforeAll(async () => {
 
 afterAll((done) => {
   server.close(() => {
-      console.log("✅ Servidor de testes encerrado.");
-      done();
+    done();
   });
 });
+
 
 describe("🎁 Testes de CRUD de Doações", () => {
   test("✅ Criar uma nova doação", async () => {

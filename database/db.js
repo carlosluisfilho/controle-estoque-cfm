@@ -3,11 +3,11 @@ const sqlite3 = require('sqlite3').verbose();
 
 // Cria uma nova instância do banco de dados SQLite, conectando-se ao arquivo 'food_stock.db'
 const db = new sqlite3.Database('./database/food_stock.db', (err) => {
-    if (err) {
-        console.error("❌ Erro ao conectar ao banco de dados:", err.message);
-    } else {
-        console.log("🔍 Verificando o banco de dados...");
-    }
+    // if (err) {
+    //     console.error("❌ Erro ao conectar ao banco de dados:", err.message);
+    // } else {
+    //     console.log("🔍 Verificando o banco de dados...");
+    //}
 });
 
 // Criação de tabelas sem resetar os dados
