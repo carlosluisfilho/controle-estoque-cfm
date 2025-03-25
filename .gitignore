@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # .gitignore
 node_modules/
 database/food_stock.db
@@ -50,3 +51,8 @@ describe("Exemplo de Teste", () => {
     cy.contains("Login");
   });
 });
+=======
+node_modules
+database/food_stock.db
+database/food_stock.db
+>>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0

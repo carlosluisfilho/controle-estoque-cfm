@@ -1,6 +1,7 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
+<<<<<<< HEAD
 const isTest = process.env.NODE_ENV === 'test';
 const dbPath = isTest ? './database/test.db' : './database/food_stock.db';
 
@@ -64,6 +65,16 @@ function onError(tabela) {
     }
   };
 }
+=======
+// Cria uma nova instância do banco de dados SQLite, conectando-se ao arquivo 'food_stock.db'
+const db = new sqlite3.Database('./database/food_stock.db', (err) => {
+    // if (err) {
+    //     console.error("❌ Erro ao conectar ao banco de dados:", err.message);
+    // } else {
+    //     console.log("🔍 Verificando o banco de dados...");
+    //}
+});
+>>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
 
 // Executar a criação das tabelas apenas fora do ambiente de teste
 if (!isTest) {

@@ -3,8 +3,12 @@ const { app, server } = require('../server'); // ✅ Agora importa corretamente
 
 afterAll((done) => {
   server.close(() => {
+<<<<<<< HEAD
     done(); // ✅ chame done antes
     // ❌ console.log("✅ Servidor de testes encerrado.");
+=======
+    done();
+>>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
   });
 });
 

@@ -63,7 +63,7 @@ describe("🛒 Testes de Distribuições de Alimentos", () => {
       cy.get("#searchFood").clear().type("Macarrão");
       cy.get("#btnSearchFood").click();
   
-      cy.get("#distributionFoodId", { timeout: 8000 }).should("have.value", "49");
+      cy.get("#distributionFoodId", { timeout: 8000 }).should("have.value", "3");
   
       // Intercepta a requisição de registro de distribuição
       cy.intercept("POST", "/distribution", {
