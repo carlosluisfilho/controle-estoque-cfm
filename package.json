@@ -1,45 +1,22 @@
 {
   "name": "01-controle-de-estoque",
   "version": "1.0.0",
-<<<<<<< HEAD
   "description": "",
-=======
-  "type": "module",
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
   "main": "index.js",
-  "description": "",
-  "author": "",
-  "license": "ISC",
-  "keywords": [],
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-<<<<<<< HEAD
-=======
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "prepare": "husky install",
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
     "test": "node scripts/runAllTests.js",
     "test:stop": "node scripts/stopTestServer.js",
     "test:setup": "node scripts/setupTestDB.js",
     "test:backend": "cross-env NODE_ENV=test jest tests --detectOpenHandles",
     "test:server": "node scripts/startTestServer.js",
-    "test:frontend": "cypress run --config-file config/cypress.config.js",
-    "coverage": "jest --coverage --runInBand"
+    "test:frontend": "cypress run --config-file config/cypress.config.js || npm run test:stop",
+    "coverage": "jest --coverage"
   },
-<<<<<<< HEAD
   "keywords": [],
   "author": "",
   "license": "ISC",
-=======
-  "lint-staged": {
-    "**/*.js": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  },
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
@@ -50,21 +27,9 @@
     "pdfkit": "^0.16.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
     "cross-env": "^7.0.3",
     "cypress": "^14.1.0",
-<<<<<<< HEAD
     "jest": "^29.7.0",
-=======
-    "eslint": "^9.23.0",
-    "eslint-plugin-cypress": "^2.15.2",
-    "eslint-plugin-jest": "^28.11.0",
-    "husky": "^8.0.1",
-    "jest": "^29.7.0",
-    "lint-staged": "^12.3.1",
-    "prettier": "^2.8.8",
-    "puppeteer": "^24.2.0",
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
     "sqlite3": "^5.1.7",
     "supertest": "^7.0.0"
   }
