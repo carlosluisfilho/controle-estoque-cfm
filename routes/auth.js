@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'secreta';
 
 // Login de usuário
 router.post('/login', (req, res) => {
@@ -23,19 +24,24 @@ router.post('/login', (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    // Comparar a senha com o hash armazenado no banco
+    // Comparar a senha fornecida com o hash armazenado
     bcrypt.compare(password, user.password, (err, senhaCorreta) => {
       if (err) {
         console.error('Erro ao comparar senhas:', err.message);
         return res.status(500).json({ error: 'Erro no servidor' });
       }
 
-      if (!user || !bcrypt.compareSync(password, user.password)) {
+      if (!senhaCorreta) {
         return res.status(400).json({ error: 'Usuário ou senha incorretos.' });
       }
 
-      // Gerar o token JWT
-      const token = jwt.sign({ id: user.id, role: user.role }, 'secreta', { expiresIn: '1h' });
+      // Gerar token JWT
+      const token = jwt.sign(
+        { id: user.id, username: user.username, role: user.role },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
       res.json({ token });
     });
   });

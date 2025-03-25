@@ -1,13 +1,10 @@
 const request = require('supertest');
 const { app, server } = require('../server'); // ✅ Agora importa corretamente
 
-afterAll(() => {
-  server.close((err) => {
-      if (err) {
-          console.error("❌ Erro ao encerrar o servidor:", err.message);
-      } else {
-          console.log("✅ Servidor de testes encerrado.");
-      }
+afterAll((done) => {
+  server.close(() => {
+    done(); // ✅ chame done antes
+    // ❌ console.log("✅ Servidor de testes encerrado.");
   });
 });
 

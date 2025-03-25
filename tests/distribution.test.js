@@ -23,8 +23,8 @@ beforeAll(async () => {
 
 afterAll((done) => {
   server.close(() => {
-      console.log("✅ Servidor de testes encerrado.");
-      done();
+    done(); // ✅ chame done antes
+    // ❌ console.log("✅ Servidor de testes encerrado.");
   });
 });
 

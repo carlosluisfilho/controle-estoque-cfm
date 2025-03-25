@@ -1,38 +1,40 @@
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./database/test.db");
+const fs = require('fs');
+const path = require('path');
+const db = require('../database/db');
 
-console.log("🗑️ Limpando banco de testes...");
+// Caminho do banco de dados de teste
+const testDBPath = path.join(__dirname, '..', 'database', 'test.db');
 
-db.serialize(() => {
-    db.run("DROP TABLE IF EXISTS food");
-    db.run("DROP TABLE IF EXISTS donation");
+if (process.env.NODE_ENV !== 'test') {
+  console.warn('⚠️ Este script deve ser executado apenas em ambiente de testes (NODE_ENV=test)');
+  process.exit(1);
+}
 
-    console.log("📦 Criando tabelas de teste...");
+// Remove o banco de teste se ele existir
+if (fs.existsSync(testDBPath)) {
+  console.log('🗑️ Limpando banco de testes...');
+  fs.unlinkSync(testDBPath);
+}
 
-    db.run(`
-        CREATE TABLE food (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
-            quantity INTEGER NOT NULL
-        )
-    `);
+// Após remover, importa novamente a instância do banco
+// Isso força a recriação do banco e das tabelas via db.js
+console.log('📦 Criando tabelas de teste...');
+require('../database/db');
 
-    db.run(`
-        CREATE TABLE donation (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            food_id INTEGER NOT NULL,
-            quantity INTEGER NOT NULL,
-            donor_name TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (food_id) REFERENCES food(id)
-        )
-    `);
+// Aguarde um curto tempo para garantir que o banco foi criado
+setTimeout(() => {
+  console.log('🌱 Inserindo dados iniciais...');
 
-    console.log("🌱 Inserindo dados iniciais...");
+  const insertUser = `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`;
+  const bcrypt = require('bcrypt');
+  const senhaHash = bcrypt.hashSync('123456', 10);
 
-    db.run("INSERT INTO food (name, quantity) VALUES ('Feijão', 50)");
-
-    console.log("✅ Banco de testes configurado!");
-});
-
-db.close();
+  db.run(insertUser, ['admin', senhaHash, 'admin'], (err) => {
+    if (err) {
+      console.error('❌ Erro ao inserir usuário de teste:', err.message);
+    } else {
+      console.log('✅ Banco de testes configurado!');
+      process.exit(0);
+    }
+  });
+}, 500);
