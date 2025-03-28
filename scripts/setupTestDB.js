@@ -16,8 +16,8 @@ if (fs.existsSync(testDBPath)) {
   }
 }
 
-// Agora importa a conexão já apontando para test.db
-process.env.NODE_ENV = 'test'; // Garante o ambiente correto
+// Garante o ambiente de teste
+process.env.NODE_ENV = 'test';
 const db = require('../database/db');
 
 console.log('📦 Criando tabelas de teste...');
@@ -36,7 +36,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS food (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      quantity INTEGER NOT NULL
+      quantity INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, onError('food'));
 
@@ -64,7 +65,7 @@ db.serialize(() => {
 
   console.log('✅ Todas as tabelas foram criadas.');
 
-  // Inserir usuário de teste se não existir
+  // Insere usuário admin padrão, se necessário
   db.get(`SELECT COUNT(*) AS count FROM users WHERE username = ?`, ['admin'], (err, row) => {
     if (err) {
       console.error('❌ Erro ao verificar usuário:', err.message);

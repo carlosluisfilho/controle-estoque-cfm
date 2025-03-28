@@ -49,27 +49,39 @@ describe("🛒 Testes de Distribuições de Alimentos", () => {
       statusCode: 200,
       body: [{ id: 3, name: "Macarrão", quantity: 80 }],
     });
-
+  
     cy.get("#searchFood").clear().type("Macarrão");
     cy.get("#btnSearchFood").click();
-
+  
     cy.get("#distributionFoodId", { timeout: 8000 }).should("have.value", "3");
-
-    // Mock da requisição de distribuição
-    cy.intercept("POST", "/distribution", {
-      statusCode: 201,
-      body: { id: 456, message: "Distribuição registrada com sucesso!" },
-    });
-
+  
+    // Mock do POST da distribuição com validação do corpo
+    cy.intercept("POST", "/distribution", (req) => {
+      expect(req.body).to.deep.equal({
+        food_id: 3,
+        quantity: 10,
+        house_name: "Casa de Apoio",
+      });
+  
+      req.reply({
+        statusCode: 201,
+        body: { id: 456, message: "Distribuição registrada com sucesso!" },
+      });
+    }).as("postDistribution");
+  
     cy.get("#distributionQuantity").type("10");
     cy.get("#houseName").type("Casa de Apoio");
     cy.get("button[type='submit']").click();
-
-    // Verifica o alerta de sucesso
+  
+    // Verifica se o alerta foi exibido com sucesso
     cy.on("window:alert", (text) => {
       expect(text).to.contain("✅ Distribuição registrada com sucesso!");
     });
+  
+    // Garante que o POST realmente foi chamado
+    cy.wait("@postDistribution");
   });
+  
 
   it("❌ Deve falhar ao registrar distribuição sem preencher campos obrigatórios", () => {
     cy.intercept("POST", "/distribution").as("postDistribution");

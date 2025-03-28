@@ -122,8 +122,8 @@
         // 🚀 Função para registrar distribuição
         async function registerDistribution(event) {
             event.preventDefault();
-            const food_id = document.getElementById("distributionFoodId").value;
-            const quantity = document.getElementById("distributionQuantity").value;
+            const food_id = Number(document.getElementById("distributionFoodId").value);
+            const quantity = Number(document.getElementById("distributionQuantity").value);
             const house_name = document.getElementById("houseName").value;
 
             if (!food_id || !quantity || !house_name) {
@@ -156,6 +156,7 @@
                 alert(error.message);
             }
         }
+
 
         // 🔄 Função para carregar histórico de distribuições
         async function fetchDistributionHistory() {
