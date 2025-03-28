@@ -1,14 +1,9 @@
 const request = require('supertest');
-const { app, server } = require('../server'); // ✅ Agora importa corretamente
+const { app, server } = require('../server');
 
 afterAll((done) => {
   server.close(() => {
-<<<<<<< HEAD
-    done(); // ✅ chame done antes
-    // ❌ console.log("✅ Servidor de testes encerrado.");
-=======
-    done();
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
+    done(); // Encerra o servidor de teste
   });
 });
 
@@ -20,11 +15,11 @@ describe('🔐 Testes de Autenticação', () => {
       .send({ username: 'admin', password: '123456' });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('token'); // Deve retornar um token
+    expect(res.body).toHaveProperty('token');
+    expect(res.body.token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/); // Verifica padrão JWT
   });
 
   test('❌ Login com credenciais inválidas retorna erro', async () => {
-    jest.setTimeout(10000); // Define timeout maior para evitar falhas
     const res = await request(app)
       .post('/auth/login')
       .send({ username: 'admin', password: 'senhaErrada' });
@@ -33,10 +28,28 @@ describe('🔐 Testes de Autenticação', () => {
     expect(res.body).toHaveProperty('error', 'Usuário ou senha incorretos.');
   });
 
+  test('❌ Login sem credenciais retorna erro de validação', async () => {
+    const res = await request(app)
+      .post('/auth/login')
+      .send({}); // Nenhum campo enviado
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty('error'); // Ex: "Campos obrigatórios"
+  });
+
   test('🔒 Acesso negado sem token JWT', async () => {
-    const res = await request(app).get('/food'); // Tenta acessar rota protegida
+    const res = await request(app).get('/food'); // Rota protegida sem token
     expect(res.statusCode).toBe(401);
     expect(res.body).toHaveProperty('error', 'Acesso negado');
+  });
+
+  test('❌ Token inválido retorna erro 403', async () => {
+    const res = await request(app)
+      .get('/food')
+      .set('Authorization', 'Bearer token.invalido.aqui');
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body).toHaveProperty('error', 'Token inválido');
   });
 
   test('🔑 Acesso permitido com token JWT', async () => {
@@ -50,6 +63,6 @@ describe('🔐 Testes de Autenticação', () => {
       .get('/food')
       .set('Authorization', `Bearer ${token}`);
 
-    expect(res.statusCode).toBe(200); // Deve permitir acesso
+    expect(res.statusCode).toBe(200);
   });
 });
