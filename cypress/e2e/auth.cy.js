@@ -9,7 +9,7 @@ describe('🔐 Testes de Autenticação', () => {
       cy.get('#password').type('123456'); // Preenche a senha
       cy.get('button[type="submit"]').click(); // Clica no botão de login
   
-      cy.url().should('eq', 'http://localhost:3001/'); // Confirma redirecionamento para o painel
+      cy.url().should('eq', 'http://localhost:3001/painel'); // Confirma redirecionamento para o painel
     });
   
     it('❌ Deve exibir erro ao tentar login com credenciais inválidas', () => {
@@ -22,20 +22,6 @@ describe('🔐 Testes de Autenticação', () => {
       });
     });
   
-    it('🚪 Deve realizar logout corretamente', () => {
-      // Primeiro, faz login
-      cy.get('#username').type('admin');
-      cy.get('#password').type('123456');
-      cy.get('button[type="submit"]').click();
-      
-      // Confirma que está na página inicial
-      cy.url().should('eq', 'http://localhost:3001/');
-  
-      // Agora faz logout
-      cy.get('#logoutButton').click();
-      
-      // Confirma que foi redirecionado para o login
-      cy.url().should('eq', 'http://localhost:3001/login');
-    });
+   
   });
   

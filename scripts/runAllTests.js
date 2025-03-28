@@ -21,8 +21,4 @@ const comandos = [
   }
 
   console.log('\n✅ Fluxo de testes finalizado.');
-<<<<<<< HEAD
 })();
-=======
-})();
->>>>>>> b75133b33d29fdfd89be45f0e8bca6aabb7ec0d0
