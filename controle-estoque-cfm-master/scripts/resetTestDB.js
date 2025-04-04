@@ -3,15 +3,15 @@ const bcrypt = require('bcrypt');
 const db = new sqlite3.Database('./database/test.db');
 
 db.serialize(() => {
-  console.log('🚀 Resetando o banco de dados de teste...');
+  console.log('🚀 Resetando o banco de dados teste...');
 
-  // Apagar tabelas antigas
+  // 🔄 Apagar tabelas antigas
   db.run(`DROP TABLE IF EXISTS users`);
   db.run(`DROP TABLE IF EXISTS food`);
   db.run(`DROP TABLE IF EXISTS donation`);
   db.run(`DROP TABLE IF EXISTS distribution`);
 
-  // Criar tabela de usuários
+  // 👤 Criar tabela de usuários
   db.run(`
     CREATE TABLE users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,7 +21,7 @@ db.serialize(() => {
     )
   `);
 
-  // Criar tabela de alimentos
+  // 🍽️ Criar tabela de alimentos
   db.run(`
     CREATE TABLE food (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +35,7 @@ db.serialize(() => {
     )
   `);
 
-  // Criar tabela de doações
+  // 🎁 Criar tabela de doações (inclui reference)
   db.run(`
     CREATE TABLE donation (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,7 +50,7 @@ db.serialize(() => {
     )
   `);
 
-  // Criar tabela de distribuições
+  // 🏠 Criar tabela de distribuições
   db.run(`
     CREATE TABLE distribution (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,20 +64,21 @@ db.serialize(() => {
 
   console.log('✅ Tabelas criadas com sucesso!');
 
-  // Inserir usuário admin padrão
+  // 🔐 Inserir usuário admin
   const hash = bcrypt.hashSync('123456', 10);
-  db.run(`
-    INSERT INTO users (username, password, role)
-    VALUES (?, ?, ?)
-  `, ['admin', hash, 'admin'], (err) => {
-    if (err) {
-      console.error('❌ Erro ao inserir usuário admin:', err.message);
-    } else {
-      console.log('✅ Usuário admin inserido com sucesso.');
+  db.run(
+    `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
+    ['admin', hash, 'admin'],
+    (err) => {
+      if (err) {
+        console.error('❌ Erro ao inserir usuário admin:', err.message);
+      } else {
+        console.log('✅ Usuário admin inserido com sucesso.');
+      }
     }
-  });
+  );
 
-  // Inserir dados iniciais em food
+  // 🥫 Inserir alimentos
   const stmtFood = db.prepare(`
     INSERT INTO food (name, quantity, date, reference, purchase_value, expiration)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -95,7 +96,7 @@ db.serialize(() => {
   stmtFood.finalize();
   console.log('📥 Alimentos inseridos com sucesso.');
 
-  // Inserir dados de doações
+  // 🤝 Inserir doações
   const stmtDonation = db.prepare(`
     INSERT INTO donation (food_id, quantity, donor_name, reference, expiration, donation_date)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -110,7 +111,7 @@ db.serialize(() => {
   stmtDonation.finalize();
   console.log('📥 Doações inseridas com sucesso.');
 
-  // Inserir dados de distribuições
+  // 📦 Inserir distribuições
   const stmtDistrib = db.prepare(`
     INSERT INTO distribution (food_id, quantity, house_name)
     VALUES (?, ?, ?)

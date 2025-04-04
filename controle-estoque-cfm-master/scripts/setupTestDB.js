@@ -51,6 +51,7 @@ db.serialize(() => {
       food_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
       donor_name TEXT,
+      reference TEXT,
       expiration TEXT,
       donation_date TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -71,7 +72,7 @@ db.serialize(() => {
 
   console.log('✅ Todas as tabelas foram criadas.');
 
-  // Usuário admin
+  // Inserir usuário admin padrão
   db.get(`SELECT COUNT(*) AS count FROM users WHERE username = ?`, ['admin'], (err, row) => {
     if (err) {
       console.error('❌ Erro ao verificar usuário:', err.message);
@@ -84,7 +85,8 @@ db.serialize(() => {
     }
 
     const hash = bcrypt.hashSync('123456', 10);
-    db.run(`INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
+    db.run(
+      `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
       ['admin', hash, 'admin'],
       (err) => {
         if (err) {
@@ -95,7 +97,8 @@ db.serialize(() => {
           console.log('🎯 Banco de testes pronto para uso!');
           process.exit(0);
         }
-      });
+      }
+    );
   });
 });
 

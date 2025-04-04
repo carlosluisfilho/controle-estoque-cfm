@@ -10,7 +10,7 @@ function formatDate(isoDate) {
   return `${day}-${month}-${year}`;
 }
 
-// ✅ Registrar uma nova doação e atualizar o estoque
+// ✅ Criar uma nova doação
 router.post("/", autenticarToken, (req, res) => {
   const {
     food_id,
@@ -21,8 +21,8 @@ router.post("/", autenticarToken, (req, res) => {
     donation_date
   } = req.body;
 
-  if (!food_id || !quantity) {
-    console.error("⚠️ Erro: ID do alimento e quantidade são obrigatórios.");
+  if (!food_id || !quantity || quantity <= 0) {
+    console.error("⚠️ ID do alimento e quantidade válidos são obrigatórios.");
     return res.status(400).json({ error: "ID do alimento e quantidade são obrigatórios." });
   }
 
@@ -52,7 +52,8 @@ router.post("/", autenticarToken, (req, res) => {
         return res.status(500).json({ error: "Erro ao registrar doação." });
       }
 
-      console.log("✅ Doação registrada com sucesso! ID:", this.lastID);
+      const donationId = this.lastID;
+      console.log("✅ Doação registrada com sucesso! ID:", donationId);
 
       const sqlUpdate = "UPDATE food SET quantity = quantity + ? WHERE id = ?";
       db.run(sqlUpdate, [quantity, food_id], function (updateErr) {
@@ -62,8 +63,8 @@ router.post("/", autenticarToken, (req, res) => {
         }
 
         console.log("📦 Estoque atualizado para o alimento ID:", food_id);
-        res.status(201).json({
-          id: this.lastID,
+        return res.status(201).json({
+          id: donationId,
           food_id,
           quantity,
           donor_name,
@@ -76,7 +77,7 @@ router.post("/", autenticarToken, (req, res) => {
   );
 });
 
-// ✅ Buscar histórico de doações
+// ✅ Listar doações
 router.get('/', autenticarToken, (req, res) => {
   db.all(`
     SELECT 
@@ -92,10 +93,11 @@ router.get('/', autenticarToken, (req, res) => {
     ORDER BY donation.donation_date DESC
   `, [], (err, rows) => {
     if (err) {
-      console.error('❌ Erro ao buscar doações:', err);
+      console.error('❌ Erro ao buscar doações:', err.message);
       return res.status(500).json({ error: 'Erro ao buscar doações.' });
     }
-    res.json(rows.map(row => ({
+
+    return res.json(rows.map(row => ({
       ...row,
       expiration: formatDate(row.expiration),
       donation_date: formatDate(row.donation_date)
@@ -103,14 +105,14 @@ router.get('/', autenticarToken, (req, res) => {
   });
 });
 
-// ✅ Excluir doação
+// ✅ Remover doação
 router.delete("/:id", autenticarToken, (req, res) => {
   const { id } = req.params;
 
   db.get("SELECT id FROM donation WHERE id = ?", [id], (err, row) => {
     if (err) {
-      console.error("Erro ao buscar doação:", err.message);
-      return res.status(500).json({ error: "Erro no servidor." });
+      console.error("❌ Erro ao buscar doação:", err.message);
+      return res.status(500).json({ error: "Erro ao buscar doação." });
     }
 
     if (!row) {
@@ -119,11 +121,12 @@ router.delete("/:id", autenticarToken, (req, res) => {
 
     db.run("DELETE FROM donation WHERE id = ?", [id], function (err) {
       if (err) {
-        console.error("Erro ao excluir doação:", err.message);
+        console.error("❌ Erro ao excluir doação:", err.message);
         return res.status(500).json({ error: "Erro ao excluir doação." });
       }
 
-      res.json({ message: "Doação removida com sucesso." });
+      console.log(`🗑️ Doação ID ${id} excluída com sucesso.`);
+      return res.json({ message: "Doação removida com sucesso." });
     });
   });
 });
@@ -146,7 +149,7 @@ router.put("/:id", autenticarToken, (req, res) => {
 
   db.get("SELECT * FROM donation WHERE id = ?", [id], (err, row) => {
     if (err) {
-      console.error("Erro ao buscar doação:", err.message);
+      console.error("❌ Erro ao buscar doação:", err.message);
       return res.status(500).json({ error: "Erro ao buscar doação." });
     }
 
@@ -162,11 +165,12 @@ router.put("/:id", autenticarToken, (req, res) => {
 
     db.run(sql, [food_id, quantity, donor_name, reference, expiration, donation_date, id], function (err) {
       if (err) {
-        console.error("Erro ao atualizar doação:", err.message);
+        console.error("❌ Erro ao atualizar doação:", err.message);
         return res.status(500).json({ error: "Erro ao atualizar doação." });
       }
 
-      res.json({ message: "Doação atualizada com sucesso." });
+      console.log(`🔄 Doação ID ${id} atualizada com sucesso.`);
+      return res.json({ message: "Doação atualizada com sucesso." });
     });
   });
 });

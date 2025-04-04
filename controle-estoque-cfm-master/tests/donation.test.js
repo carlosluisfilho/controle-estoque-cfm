@@ -17,7 +17,7 @@ beforeAll(done => {
     db.run(`DELETE FROM food`);
     db.run(`
       INSERT INTO food (id, name, quantity, date, reference, purchase_value, expiration)
-      VALUES (2000, 'Macarrão Teste', 100, '2025-01-01', 'REFM123', 7.5, '2025-11-30')
+      VALUES (2000, 'Macarrão Teste', 100, '2025-01-01', 'REF-TESTE-01', 7.5, '2025-11-30')
     `, done);
   });
 });
@@ -30,12 +30,14 @@ describe('CRUD completo para /donation', () => {
         food_id: 2000,
         quantity: 10,
         donor_name: 'Carlos Teste',
+        reference: 'REF-TESTE-01',
         expiration: '2025-11-30',
         donation_date: '2025-04-03'
       });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
+    expect(res.body.reference).toBe('REF-TESTE-01'); // Corrigido aqui
     donationId = res.body.id;
   });
 
@@ -44,6 +46,7 @@ describe('CRUD completo para /donation', () => {
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0]).toHaveProperty('reference');
   });
 
   it('PUT /donation/:id - atualiza doação existente', async () => {
@@ -53,6 +56,7 @@ describe('CRUD completo para /donation', () => {
         food_id: 2000,
         quantity: 15,
         donor_name: 'Carlos Atualizado',
+        reference: 'REF-TESTE-01', // Adicionado
         expiration: '2025-12-01',
         donation_date: '2025-04-04'
       });
