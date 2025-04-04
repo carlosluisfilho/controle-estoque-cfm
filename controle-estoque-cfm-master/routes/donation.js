@@ -5,9 +5,9 @@ const autenticarToken = require('../middleware/auth');
 const router = express.Router();
 
 function formatDate(isoDate) {
-    if (!isoDate) return '';
-    const [year, month, day] = isoDate.split('T')[0].split('-');
-    return `${day}-${month}-${year}`;
+  if (!isoDate) return '';
+  const [year, month, day] = isoDate.split('T')[0].split('-');
+  return `${day}-${month}-${year}`;
 }
 
 // ✅ Registrar uma nova doação e atualizar o estoque
@@ -16,6 +16,7 @@ router.post("/", autenticarToken, (req, res) => {
     food_id,
     quantity,
     donor_name,
+    reference,
     expiration,
     donation_date
   } = req.body;
@@ -32,53 +33,60 @@ router.post("/", autenticarToken, (req, res) => {
     food_id,
     quantity,
     donor_name,
+    reference,
     expiration: validadeItem,
     donation_date: dataDoacao
   });
 
   const sqlInsert = `
-    INSERT INTO donation (food_id, quantity, donor_name, expiration, donation_date)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO donation (food_id, quantity, donor_name, reference, expiration, donation_date)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
-  db.run(sqlInsert, [food_id, quantity, donor_name || "Anônimo", validadeItem, dataDoacao], function (err) {
-    if (err) {
-      console.error("🔥 Erro ao registrar doação:", err.message);
-      return res.status(500).json({ error: "Erro ao registrar doação." });
-    }
-
-    console.log("✅ Doação registrada com sucesso! ID:", this.lastID);
-
-    const sqlUpdate = "UPDATE food SET quantity = quantity + ? WHERE id = ?";
-    db.run(sqlUpdate, [quantity, food_id], function (updateErr) {
-      if (updateErr) {
-        console.error("⚠️ Erro ao atualizar estoque:", updateErr.message);
-        return res.status(500).json({ error: "Erro ao atualizar estoque." });
+  db.run(
+    sqlInsert,
+    [food_id, quantity, donor_name || "Anônimo", reference, validadeItem, dataDoacao],
+    function (err) {
+      if (err) {
+        console.error("🔥 Erro ao registrar doação:", err.message);
+        return res.status(500).json({ error: "Erro ao registrar doação." });
       }
 
-      console.log("📦 Estoque atualizado para o alimento ID:", food_id);
-      res.status(201).json({
-        id: this.lastID,
-        food_id,
-        quantity,
-        donor_name,
-        expiration: formatDate(validadeItem),
-        donation_date: formatDate(dataDoacao)
+      console.log("✅ Doação registrada com sucesso! ID:", this.lastID);
+
+      const sqlUpdate = "UPDATE food SET quantity = quantity + ? WHERE id = ?";
+      db.run(sqlUpdate, [quantity, food_id], function (updateErr) {
+        if (updateErr) {
+          console.error("⚠️ Erro ao atualizar estoque:", updateErr.message);
+          return res.status(500).json({ error: "Erro ao atualizar estoque." });
+        }
+
+        console.log("📦 Estoque atualizado para o alimento ID:", food_id);
+        res.status(201).json({
+          id: this.lastID,
+          food_id,
+          quantity,
+          donor_name,
+          reference,
+          expiration: formatDate(validadeItem),
+          donation_date: formatDate(dataDoacao)
+        });
       });
-    });
-  });
+    }
+  );
 });
 
-// ✅ Buscar histórico de doações com os nomes corretos dos campos
+// ✅ Buscar histórico de doações
 router.get('/', autenticarToken, (req, res) => {
   db.all(`
     SELECT 
-        donation.id, 
-        food.name AS food_name, 
-        donation.quantity, 
-        donation.donor_name, 
-        donation.expiration,
-        donation.donation_date
+      donation.id, 
+      food.name AS food_name, 
+      donation.quantity, 
+      donation.donor_name,
+      donation.reference, 
+      donation.expiration,
+      donation.donation_date
     FROM donation
     JOIN food ON donation.food_id = food.id
     ORDER BY donation.donation_date DESC
@@ -122,16 +130,17 @@ router.delete("/:id", autenticarToken, (req, res) => {
 
 // ✅ Atualizar doação
 router.put("/:id", autenticarToken, (req, res) => {
-  const id = parseInt(req.params.id, 10); // garantindo tipo número
+  const id = parseInt(req.params.id, 10);
   const {
     food_id,
     quantity,
     donor_name,
+    reference,
     expiration,
     donation_date
   } = req.body;
 
-  if (!food_id || !quantity || !donor_name || !donation_date) {
+  if (!food_id || !quantity || !donor_name || !reference || !donation_date) {
     return res.status(400).json({ error: "Todos os campos obrigatórios devem ser preenchidos." });
   }
 
@@ -147,11 +156,11 @@ router.put("/:id", autenticarToken, (req, res) => {
 
     const sql = `
       UPDATE donation
-      SET food_id = ?, quantity = ?, donor_name = ?, expiration = ?, donation_date = ?
+      SET food_id = ?, quantity = ?, donor_name = ?, reference = ?, expiration = ?, donation_date = ?
       WHERE id = ?
     `;
 
-    db.run(sql, [food_id, quantity, donor_name, expiration, donation_date, id], function (err) {
+    db.run(sql, [food_id, quantity, donor_name, reference, expiration, donation_date, id], function (err) {
       if (err) {
         console.error("Erro ao atualizar doação:", err.message);
         return res.status(500).json({ error: "Erro ao atualizar doação." });
