@@ -18,7 +18,7 @@ describe("🛒 Testes de CRUD de Doações no Front-End", () => {
           localStorage.setItem("token", response.body.token);
         });
     
-        // ✅ Agora visita a página de Gerenciar Alimentos
+        // ✅ Agora visita a página de Gerenciar Itens
         cy.visit("/donation.html");
       });
   
@@ -28,7 +28,7 @@ describe("🛒 Testes de CRUD de Doações no Front-End", () => {
       cy.contains("Gerar Relatórios").should("be.visible");
     });
   
-    it("🔍 Deve buscar um alimento existente", () => {
+    it("🔍 Deve buscar um item existente", () => {
       cy.intercept("GET", "/food?name=Arroz", {
         statusCode: 200,
         body: [{ id: 1, name: "Arroz", quantity: 50 }],
@@ -50,22 +50,22 @@ describe("🛒 Testes de CRUD de Doações no Front-End", () => {
         // Aguarda a atualização do resultado
         cy.get("#searchResult", { timeout: 8000 })
           .should("be.visible")
-          .and("contain", "❌ Alimento não encontrado.");
+          .and("contain", "❌ Item não encontrado.");
       });
       
   
       it("🎁 Deve registrar uma doação com sucesso", () => {
-        // Intercepta a busca de alimento
+        // Intercepta a busca de item
          cy.intercept("GET", "/food?name=Arroz", {
            statusCode: 200,
            body: [{ id: 1, name: "Arroz", quantity: 50 }],
          });
       
-        // Simula a busca do alimento
+        // Simula a busca do item
         cy.get("#searchFood").type("Arroz");
         cy.get("#btnSearchFood").click();
       
-        // Aguarda o ID do alimento ser preenchido automaticamente
+        // Aguarda o ID do item ser preenchido automaticamente
         cy.get("#donationFoodId", { timeout: 8000 }).should("have.value", "1");
       
         // Intercepta a requisição de doação

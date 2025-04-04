@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 
-// Define o caminho do banco de dados de teste
+// Caminho do banco de dados de teste
 const testDBPath = path.join(__dirname, '..', 'database', 'test.db');
 
-// Remove o banco de teste antes de conectar
+// Remove o banco anterior se existir
 if (fs.existsSync(testDBPath)) {
   try {
     fs.unlinkSync(testDBPath);
@@ -16,7 +16,7 @@ if (fs.existsSync(testDBPath)) {
   }
 }
 
-// Garante o ambiente de teste
+// Define ambiente de teste
 process.env.NODE_ENV = 'test';
 const db = require('../database/db');
 
@@ -36,7 +36,11 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS food (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
-      quantity INTEGER NOT NULL,
+      quantity INTEGER NOT NULL DEFAULT 0,
+      date TEXT,
+      reference TEXT,
+      purchase_value REAL,
+      expiration TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, onError('food'));
@@ -47,6 +51,8 @@ db.serialize(() => {
       food_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
       donor_name TEXT,
+      expiration TEXT,
+      donation_date TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(food_id) REFERENCES food(id)
     )
@@ -65,7 +71,7 @@ db.serialize(() => {
 
   console.log('✅ Todas as tabelas foram criadas.');
 
-  // Insere usuário admin padrão, se necessário
+  // Usuário admin
   db.get(`SELECT COUNT(*) AS count FROM users WHERE username = ?`, ['admin'], (err, row) => {
     if (err) {
       console.error('❌ Erro ao verificar usuário:', err.message);
