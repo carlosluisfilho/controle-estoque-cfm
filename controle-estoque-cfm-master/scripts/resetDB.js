@@ -83,11 +83,11 @@ db.serialize(() => {
     VALUES (?, ?, ?, ?, ?, ?)
   `);
   const alimentos = [
-    ['Arroz', 50, '2025-04-01', 'REF001', 120.5, '2026-04-01'],
-    ['Feijão', 40, '2025-03-20', 'REF002', 95.8, '2026-03-20'],
-    ['Macarrão', 30, '2025-03-15', 'REF003', 70.0, '2026-03-15'],
-    ['Açúcar', 20, '2025-02-28', 'REF004', 65.2, '2026-02-28'],
-    ['Sal', 10, '2025-01-10', 'REF005', 30.0, '2026-01-10']
+    ['Arroz', 50, '2025-04-01', 'Kilos', 120.5, '2026-04-01'],
+    ['Feijão', 40, '2025-03-20', 'Fardo', 95.8, '2026-03-20'],
+    ['Macarrão', 30, '2025-03-15', 'Pacotes', 70.0, '2026-03-15'],
+    ['Açúcar', 20, '2025-02-28', 'Kilos', 65.2, '2026-02-28'],
+    ['Sal', 10, '2025-01-10', 'Kilos', 30.0, '2026-01-10']
   ];
   alimentos.forEach(([name, quantity, date, reference, purchase_value, expiration]) => {
     stmtFood.run(name, quantity, date, reference, purchase_value, expiration);
@@ -101,8 +101,8 @@ db.serialize(() => {
     VALUES (?, ?, ?, ?, ?, ?)
   `);
   const doacoes = [
-    [1, 10, 'João da Silva', 'REF001', '2026-04-01', '2025-04-01'],
-    [2, 5, 'Maria Oliveira', 'REF002', '2026-03-20', '2025-03-21']
+    [1, 10, 'João da Silva', 'Kilos', '2026-04-01', '2025-04-01'],
+    [2, 5, 'Maria Oliveira', 'Fardo', '2026-03-20', '2025-03-21']
   ];
   doacoes.forEach(([food_id, quantity, donor_name, reference, expiration, donation_date]) => {
     stmtDonation.run(food_id, quantity, donor_name, reference, expiration, donation_date);
