@@ -1,158 +1,99 @@
-const express = require('express');
+const express = require("express");
+const db = require("../database/db");
+const autenticarToken = require("../middleware/auth");
+
 const router = express.Router();
-const db = require('../database/db');
-const autenticarToken = require('../middleware/auth'); // ⬅️ ESSA LINHA É ESSENCIAL
 
-function formatDate(isoDate) {
-    if (!isoDate) return '';
-    const [year, month, day] = isoDate.split('T')[0].split('-');
-    return `${day}-${month}-${year}`;
-}
+// ✅ Criar nova distribuição
+router.post("/", autenticarToken, (req, res) => {
+  const { food_id, quantity, house_name } = req.body;
 
-// 📋 Listar todas as distribuições
-router.get('/', (req, res) => {
-    db.all(`
-        SELECT d.id, f.name AS food_name, d.quantity, d.house_name, d.created_at
-        FROM distribution d
-        JOIN food f ON d.food_id = f.id
-        ORDER BY d.created_at DESC
-    `, [], (err, rows) => {
-        if (err) {
-            console.error("❌ Erro ao buscar distribuições:", err.message);
-            return res.status(500).json({ error: "Erro interno do servidor" });
-        }
-        res.json(rows.map(row => { return { ...row, distribution_date: formatDate(row.distribution_date) }; }));
-    });
-});
+  if (!food_id || !quantity || !house_name) {
+    return res.status(400).json({ error: "Campos obrigatórios faltando." });
+  }
 
-// 📦 Registrar uma nova distribuição (com transação)
-router.post('/', (req, res) => {
-    const { food_id, quantity, house_name, created_at } = req.body;
+  const sql = `
+    INSERT INTO distribution (food_id, quantity, house_name)
+    VALUES (?, ?, ?)
+  `;
 
-    // 🚨 Validação de entrada
-    if (!food_id || !quantity || !house_name) {
-        return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
+  db.run(sql, [food_id, quantity, house_name], function (err) {
+    if (err) {
+      console.error("Erro ao registrar distribuição:", err.message);
+      return res.status(500).json({ error: "Erro ao registrar distribuição." });
     }
 
-    db.serialize(() => {
-        db.get('SELECT quantity FROM food WHERE id = ?', [food_id], (err, row) => {
-            if (err) {
-                console.error("❌ Erro ao verificar estoque:", err.message);
-                return res.status(500).json({ error: "Erro ao verificar estoque." });
-            }
-            if (!row || row.quantity < quantity) {
-                return res.status(400).json({ error: 'Quantidade insuficiente no estoque.' });
-            }
-
-            db.run('BEGIN TRANSACTION'); // Inicia transação
-
-            db.run(`
-                INSERT INTO distribution (food_id, quantity, house_name) 
-                VALUES (?, ?, ?)
-            `, [food_id, quantity, house_name], function (err) {
-                if (err) {
-                    console.error("❌ Erro ao registrar distribuição:", err.message);
-                    db.run('ROLLBACK'); // Cancela a transação
-                    return res.status(500).json({ error: "Erro ao registrar distribuição." });
-                }
-
-                // Atualizar estoque
-                db.run(`
-                    UPDATE food SET quantity = quantity - ? WHERE id = ?
-                `, [quantity, food_id], function (updateErr) {
-                    if (updateErr) {
-                        console.error("❌ Erro ao atualizar estoque:", updateErr.message);
-                        db.run('ROLLBACK'); // Cancela a transação
-                        return res.status(500).json({ error: "Erro ao atualizar estoque." });
-                    }
-
-                    db.run('COMMIT'); // Confirma transação
-                    res.status(201).json({ id: this.lastID, message: "Distribuição registrada com sucesso!" });
-                });
-            });
-        });
-    });
+    res.status(201).json({ id: this.lastID, food_id, quantity, house_name });
+  });
 });
 
-// 🗑️ Deletar uma distribuição (ajusta estoque)
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
+// ✅ Buscar todas as distribuições
+router.get("/", autenticarToken, (req, res) => {
+  db.all(`
+    SELECT 
+      distribution.id, 
+      food.name AS food_name, 
+      distribution.quantity, 
+      distribution.house_name, 
+      distribution.created_at
+    FROM distribution
+    JOIN food ON distribution.food_id = food.id
+    ORDER BY distribution.created_at DESC
+  `, [], (err, rows) => {
+    if (err) {
+      console.error("Erro ao buscar distribuições:", err.message);
+      return res.status(500).json({ error: "Erro ao buscar distribuições." });
+    }
 
-    db.serialize(() => {
-        db.get('SELECT food_id, quantity FROM distribution WHERE id = ?', [id], (err, row) => {
-            if (err) {
-                console.error("❌ Erro ao buscar distribuição:", err.message);
-                return res.status(500).json({ error: "Erro ao buscar distribuição." });
-            }
-            if (!row) {
-                return res.status(404).json({ error: 'Distribuição não encontrada.' });
-            }
-
-            const { food_id, quantity } = row;
-
-            db.run('BEGIN TRANSACTION'); // Inicia transação
-
-            db.run('DELETE FROM distribution WHERE id = ?', [id], function (err) {
-                if (err) {
-                    console.error("❌ Erro ao remover distribuição:", err.message);
-                    db.run('ROLLBACK');
-                    return res.status(500).json({ error: "Erro ao remover distribuição." });
-                }
-
-                db.run('UPDATE food SET quantity = quantity + ? WHERE id = ?', [quantity, food_id], function (updateErr) {
-                    if (updateErr) {
-                        console.error("❌ Erro ao restaurar estoque:", updateErr.message);
-                        db.run('ROLLBACK');
-                        return res.status(500).json({ error: "Erro ao restaurar estoque." });
-                    }
-
-                    db.run('COMMIT'); // Confirma transação
-                    res.json({ message: "Distribuição removida e estoque ajustado.", deleted: this.changes });
-                });
-            });
-        });
-    });
+    res.status(200).json(rows);
+  });
 });
 
 // ✅ Atualizar distribuição
 router.put("/:id", autenticarToken, (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const {
-      food_id,
-      quantity,
-      house_name,
-      created_at
-    } = req.body;
-  
-    if (!food_id || !quantity || !house_name || !created_at) {
-      return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  const id = parseInt(req.params.id, 10);
+  const { food_id, quantity, house_name, created_at } = req.body;
+
+  if (!food_id || !quantity || !house_name || !created_at) {
+    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  }
+
+  const sql = `
+    UPDATE distribution
+    SET food_id = ?, quantity = ?, house_name = ?, created_at = ?
+    WHERE id = ?
+  `;
+
+  db.run(sql, [food_id, quantity, house_name, created_at, id], function (err) {
+    if (err) {
+      console.error("Erro ao atualizar distribuição:", err.message);
+      return res.status(500).json({ error: "Erro ao atualizar distribuição." });
     }
-  
-    db.get("SELECT * FROM distribution WHERE id = ?", [id], (err, row) => {
-      if (err) {
-        console.error("Erro ao buscar distribuição:", err.message);
-        return res.status(500).json({ error: "Erro ao buscar distribuição." });
-      }
-  
-      if (!row) {
-        return res.status(404).json({ error: "Distribuição não encontrada." });
-      }
-  
-      const sql = `
-        UPDATE distribution
-        SET food_id = ?, quantity = ?, house_name = ?, created_at = ?
-        WHERE id = ?
-      `;
-  
-      db.run(sql, [food_id, quantity, house_name, distribution_date, id], function (err) {
-        if (err) {
-          console.error("Erro ao atualizar distribuição:", err.message);
-          return res.status(500).json({ error: "Erro ao atualizar distribuição." });
-        }
-  
-        res.json({ message: "Distribuição atualizada com sucesso." });
-      });
-    });
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Distribuição não encontrada." });
+    }
+
+    res.status(200).json({ message: "Distribuição atualizada com sucesso." });
   });
+});
+
+// ✅ Excluir distribuição
+router.delete("/:id", autenticarToken, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  db.run("DELETE FROM distribution WHERE id = ?", [id], function (err) {
+    if (err) {
+      console.error("Erro ao excluir distribuição:", err.message);
+      return res.status(500).json({ error: "Erro ao excluir distribuição." });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Distribuição não encontrada." });
+    }
+
+    res.status(200).json({ message: "Distribuição removida e estoque ajustado." });
+  });
+});
 
 module.exports = router;

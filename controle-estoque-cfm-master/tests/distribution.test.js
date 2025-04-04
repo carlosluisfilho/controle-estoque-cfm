@@ -29,8 +29,7 @@ describe('CRUD completo para /distribution', () => {
       .send({
         food_id: 3000,
         quantity: 10,
-        house_name: 'Casa Teste',
-        distribution_date: '2025-04-03'
+        house_name: 'Casa Teste'
       });
 
     expect(res.statusCode).toBe(201);
