@@ -23,7 +23,15 @@ router.post("/", autenticarToken, (req, res) => {
       return res.status(500).json({ error: "Erro ao registrar distribuição." });
     }
 
-    res.status(201).json({ id: this.lastID, food_id, quantity, house_name });
+    // Atualizar o estoque subtraindo a quantidade distribuída
+    db.run("UPDATE food SET quantity = quantity - ? WHERE id = ?", [quantity, food_id], function (estoqueErr) {
+      if (estoqueErr) {
+        console.error("Erro ao atualizar estoque:", estoqueErr.message);
+        return res.status(500).json({ error: "Erro ao atualizar estoque." });
+      }
+
+      res.status(201).json({ id: this.lastID, food_id, quantity, house_name });
+    });
   });
 });
 
@@ -92,7 +100,7 @@ router.delete("/:id", autenticarToken, (req, res) => {
       return res.status(404).json({ error: "Distribuição não encontrada." });
     }
 
-    res.status(200).json({ message: "Distribuição removida e estoque ajustado." });
+    res.status(200).json({ message: "Distribuição removida com sucesso." });
   });
 });
 

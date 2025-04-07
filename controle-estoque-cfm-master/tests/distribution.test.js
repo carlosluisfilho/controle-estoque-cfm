@@ -61,6 +61,14 @@ describe('CRUD completo para /distribution', () => {
   it('DELETE /distribution/:id - remove distribuição existente', async () => {
     const res = await request(app).delete(`/distribution/${distributionId}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe("Distribuição removida e estoque ajustado.");
+    expect(res.body.message).toBe("Distribuição removida com sucesso.");
+  });
+
+  it('🔄 Verifica se a quantidade do alimento foi subtraída corretamente', done => {
+    db.get("SELECT quantity FROM food WHERE id = 3000", (err, row) => {
+      expect(err).toBeNull();
+      expect(row.quantity).toBe(90); // 100 - 10 da distribuição anterior
+      done();
+    });
   });
 });

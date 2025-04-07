@@ -1,4 +1,3 @@
-
 const express = require("express");
 const db = require("../database/db");
 const autenticarToken = require("../middleware/auth");
@@ -8,6 +7,11 @@ function formatDate(isoDate) {
   if (!isoDate) return '';
   const [year, month, day] = isoDate.split('T')[0].split('-');
   return `${day}-${month}-${year}`;
+}
+
+function getMonthReference(date) {
+  if (!date) return '';
+  return date.slice(0, 7); // "YYYY-MM"
 }
 
 // 🔍 Buscar alimentos (com ou sem filtro por nome)
@@ -47,6 +51,9 @@ router.post("/", autenticarToken, (req, res) => {
     return res.status(400).json({ error: "Todos os campos são obrigatórios." });
   }
 
+  const total = parseFloat(purchase_value) * parseInt(quantity, 10);
+  const month_reference = getMonthReference(date);
+
   db.get("SELECT * FROM food WHERE name = ?", [name], (err, row) => {
     if (err) {
       console.error("Erro ao verificar alimento:", err.message);
@@ -55,9 +62,12 @@ router.post("/", autenticarToken, (req, res) => {
 
     if (row) {
       const newQuantity = row.quantity + parseInt(quantity, 10);
+      const newTotal = parseFloat(purchase_value) * newQuantity;
       db.run(
-        `UPDATE food SET quantity = ?, date = ?, reference = ?, purchase_value = ?, expiration = ? WHERE id = ?`,
-        [newQuantity, date, reference, purchase_value, expiration, row.id],
+        `UPDATE food
+         SET quantity = ?, date = ?, reference = ?, purchase_value = ?, expiration = ?, total = ?, month_reference = ?
+         WHERE id = ?`,
+        [newQuantity, date, reference, purchase_value, expiration, newTotal, month_reference, row.id],
         function (err) {
           if (err) {
             console.error("Erro ao atualizar alimento:", err.message);
@@ -67,15 +77,17 @@ router.post("/", autenticarToken, (req, res) => {
             id: row.id,
             name,
             quantity: newQuantity,
+            total: newTotal,
+            month_reference,
             message: "Estoque atualizado com sucesso!"
           });
         }
       );
     } else {
       db.run(
-        `INSERT INTO food (name, quantity, date, reference, purchase_value, expiration)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [name, quantity, date, reference, purchase_value, expiration],
+        `INSERT INTO food (name, quantity, date, reference, purchase_value, expiration, total, month_reference)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, quantity, date, reference, purchase_value, expiration, total, month_reference],
         function (err) {
           if (err) {
             console.error("Erro ao adicionar alimento:", err.message);
@@ -85,6 +97,8 @@ router.post("/", autenticarToken, (req, res) => {
             id: this.lastID,
             name,
             quantity,
+            total,
+            month_reference,
             message: "Alimento cadastrado com sucesso!"
           });
         }
@@ -109,6 +123,9 @@ router.put("/:id", autenticarToken, (req, res) => {
     return res.status(400).json({ error: "Todos os campos são obrigatórios." });
   }
 
+  const total = parseFloat(purchase_value) * parseInt(quantity, 10);
+  const month_reference = getMonthReference(date);
+
   db.get("SELECT * FROM food WHERE id = ?", [id], (err, row) => {
     if (err) {
       console.error("Erro ao buscar alimento:", err.message);
@@ -120,15 +137,19 @@ router.put("/:id", autenticarToken, (req, res) => {
 
     db.run(
       `UPDATE food
-       SET name = ?, quantity = ?, date = ?, reference = ?, purchase_value = ?, expiration = ?
+       SET name = ?, quantity = ?, date = ?, reference = ?, purchase_value = ?, expiration = ?, total = ?, month_reference = ?
        WHERE id = ?`,
-      [name, quantity, date, reference, purchase_value, expiration, id],
+      [name, quantity, date, reference, purchase_value, expiration, total, month_reference, id],
       function (err) {
         if (err) {
           console.error("Erro ao atualizar alimento:", err.message);
           return res.status(500).json({ error: "Erro ao atualizar alimento." });
         }
-        res.json({ message: "Alimento atualizado com sucesso." });
+        res.json({
+          message: "Alimento atualizado com sucesso.",
+          total,
+          month_reference
+        });
       }
     );
   });

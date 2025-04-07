@@ -129,6 +129,23 @@ describe("🛒 Testes de Distribuições de Alimentos", () => {
       });
   });
 
+  it("🔄 Deve exibir quantidade atualizada após distribuição", () => {
+    cy.intercept("GET", "/food?name=Macarr%C3%A3o", {
+      statusCode: 200,
+      body: [{ id: 3, name: "Macarrão", quantity: 70 }], // Esperado após -10
+    }).as("refetchFood");
+
+    // Simula nova busca após distribuição
+    cy.get("#searchFood").clear().type("Macarrão");
+    cy.get("#btnSearchFood").click();
+
+    cy.wait("@refetchFood");
+
+    cy.get("#searchResult", { timeout: 8000 })
+      .should("be.visible")
+      .and("contain", "✅ Macarrão encontrado! Quantidade disponível: 70");
+  });
+
   it("🚪 Deve realizar logout corretamente", () => {
     cy.get("#logoutButton").click();
     cy.url({ timeout: 5000 }).should("include", "/login");
