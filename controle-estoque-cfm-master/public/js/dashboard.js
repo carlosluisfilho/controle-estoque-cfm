@@ -1,78 +1,78 @@
-// 🔄 Carrega o painel ao carregar a página
+// js/dashboard.js (refatorado com feedback visual)
 document.addEventListener("DOMContentLoaded", carregarPainel);
 
-// 🚀 Função principal do painel
 async function carregarPainel() {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado. Faça login novamente.");
-      window.location.href = "/login";
+      redirecionarLogin("Usuário não autenticado. Faça login novamente.");
       return;
     }
 
     const response = await fetch("/dashboard", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` }
     });
 
-    // Trata erro 401 (token inválido ou expirado)
     if (response.status === 401) {
-      alert("Sessão expirada. Faça login novamente.");
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      redirecionarLogin("Sessão expirada. Faça login novamente.");
       return;
     }
 
     const data = await response.json();
-    console.log("📊 Dados recebidos do servidor:", data);
 
     if (response.ok) {
-      document.getElementById("totalAlimentos").innerText = data.totais.alimentos || 0;
-      document.getElementById("totalDoacoes").innerText = data.totais.doacoes || 0;
-      document.getElementById("totalDistribuicoes").innerText = data.totais.distribuicoes || 0;
-
-      preencherTabela("tabelaAlimentos", data.ultimasMovimentacoes.alimentos, ["name", "quantity", "created_at"]);
-      preencherTabela("tabelaDoacoes", data.ultimasMovimentacoes.doacoes, ["food_id", "quantity", "donor_name", "created_at"]);
-      preencherTabela("tabelaDistribuicoes", data.ultimasMovimentacoes.distribuicoes, ["food_id", "quantity", "house_name", "created_at"]);
+      atualizarPainel(data);
     } else {
-      console.error("❌ Erro ao carregar painel:", data.error);
-      alert(data.error);
+      exibirErro(data.error || "Erro ao carregar o painel.");
     }
   } catch (error) {
-    console.error("❌ Erro inesperado ao carregar painel:", error);
-    alert("Erro ao carregar o painel.");
+    console.error("❌ Erro inesperado:", error);
+    exibirErro("Erro inesperado ao carregar o painel.");
   }
 }
 
-// 📋 Função genérica para preencher qualquer tabela
+function atualizarPainel(data) {
+  document.getElementById("totalAlimentos").innerText = data.totais.alimentos || 0;
+  document.getElementById("totalDoacoes").innerText = data.totais.doacoes || 0;
+  document.getElementById("totalDistribuicoes").innerText = data.totais.distribuicoes || 0;
+
+  preencherTabela("tabelaAlimentos", data.ultimasMovimentacoes.alimentos, ["name", "quantity", "created_at"]);
+  preencherTabela("tabelaDoacoes", data.ultimasMovimentacoes.doacoes, ["food_name", "quantity", "donor_name", "created_at"]);
+  preencherTabela("tabelaDistribuicoes", data.ultimasMovimentacoes.distribuicoes, ["food_name", "quantity", "house_name", "created_at"]);
+}
+
 function preencherTabela(idTabela, dados, colunas) {
   const tabela = document.getElementById(idTabela);
-  if (!tabela) {
-    console.error(`⚠️ Tabela com ID "${idTabela}" não encontrada.`);
-    return;
-  }
+  if (!tabela) return;
 
   const tbody = tabela.querySelector("tbody");
   tbody.innerHTML = "";
 
   dados.forEach((item) => {
     const linha = document.createElement("tr");
-
     colunas.forEach((coluna) => {
       const celula = document.createElement("td");
-
-      // Formata datas
-      if (coluna === "created_at" && item[coluna]) {
-        celula.textContent = new Date(item[coluna]).toLocaleString();
-      } else {
-        celula.textContent = item[coluna] || "-";
-      }
-
+      celula.textContent = coluna === "created_at" && item[coluna]
+        ? new Date(item[coluna]).toLocaleString()
+        : item[coluna] || "-";
       linha.appendChild(celula);
     });
-
     tbody.appendChild(linha);
   });
+}
+
+function redirecionarLogin(mensagem) {
+  alert(mensagem);
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+}
+
+function exibirErro(mensagem) {
+  const alerta = document.getElementById("errorMessage");
+  if (alerta) {
+    alerta.classList.remove("d-none");
+    alerta.textContent = mensagem;
+  } else {
+    alert(mensagem);
+  }
 }
