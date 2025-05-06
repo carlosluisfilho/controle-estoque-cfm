@@ -51,7 +51,7 @@ async function gerarRelatorioDoacoesPDF(caminho) {
       SELECT donation.id, food.name AS food_name, donation.quantity, donation.donor_name, donation.created_at
       FROM donation JOIN food ON donation.food_id = food.id
     `);
-    doacoes = doacoes.map(d => ({ ...d, created_at: formatarData(d.created_at) }));
+    doacoes = doacoes.map(d => ({ ...d, created_at: formatarData(d.created_at) })); // Formatar data
     const colunas = ['id', 'food_name', 'quantity', 'donor_name', 'created_at'];
     await gerarPDF(caminho, 'Relatório de Doações', colunas, doacoes);
   } catch (err) {
@@ -65,7 +65,7 @@ async function gerarRelatorioDoacoesExcel(caminho) {
       SELECT donation.id, food.name AS food_name, donation.quantity, donation.donor_name, donation.created_at
       FROM donation JOIN food ON donation.food_id = food.id
     `);
-    doacoes = doacoes.map(d => ({ ...d, created_at: formatarData(d.created_at) }));
+    doacoes = doacoes.map(d => ({ ...d, created_at: formatarData(d.created_at) })); // Formatar data
     const colunas = [
       { header: 'ID', key: 'id' },
       { header: 'Alimento', key: 'food_name' },
@@ -85,7 +85,7 @@ async function gerarRelatorioDistribuicoesPDF(caminho) {
       SELECT distribution.id, food.name AS food_name, distribution.quantity, distribution.house_name, distribution.created_at
       FROM distribution JOIN food ON distribution.food_id = food.id
     `);
-    dist = dist.map(d => ({ ...d, created_at: formatarData(d.created_at) }));
+    dist = dist.map(d => ({ ...d, created_at: formatarData(d.created_at) })); // Formatar data
     const colunas = ['id', 'food_name', 'quantity', 'house_name', 'created_at'];
     await gerarPDF(caminho, 'Relatório de Distribuições', colunas, dist);
   } catch (err) {
@@ -99,7 +99,7 @@ async function gerarRelatorioDistribuicoesExcel(caminho) {
       SELECT distribution.id, food.name AS food_name, distribution.quantity, distribution.house_name, distribution.created_at
       FROM distribution JOIN food ON distribution.food_id = food.id
     `);
-    dist = dist.map(d => ({ ...d, created_at: formatarData(d.created_at) }));
+    dist = dist.map(d => ({ ...d, created_at: formatarData(d.created_at) })); // Formatar data
     const colunas = [
       { header: 'ID', key: 'id' },
       { header: 'Alimento', key: 'food_name' },
@@ -118,14 +118,10 @@ async function gerarRelatorioFoodPDF(caminho) {
     let alimentos = await consultarBanco(`SELECT * FROM food`);
     alimentos = alimentos.map(a => ({
       ...a,
-      date: formatarData(a.date),
-      expiration: formatarData(a.expiration),
-      total: `R$ ${parseFloat(a.total || 0).toFixed(2)}`
+      date: formatarData(a.date), // Formatar data
+      expiration: formatarData(a.expiration) // Formatar data
     }));
-    const colunas = [
-      'id', 'name', 'quantity', 'date', 'reference',
-      'purchase_value', 'total', 'month_reference', 'expiration'
-    ];
+    const colunas = ['id', 'name', 'quantity', 'date', 'reference', 'purchase_value', 'expiration'];
     await gerarPDF(caminho, 'Relatório de Alimentos', colunas, alimentos);
   } catch (err) {
     console.error("Erro PDF Alimentos:", err.message);
@@ -137,9 +133,8 @@ async function gerarRelatorioFoodExcel(caminho) {
     let alimentos = await consultarBanco(`SELECT * FROM food`);
     alimentos = alimentos.map(a => ({
       ...a,
-      date: formatarData(a.date),
-      expiration: formatarData(a.expiration),
-      total: parseFloat(a.total || 0).toFixed(2)
+      date: formatarData(a.date), // Formatar data
+      expiration: formatarData(a.expiration) // Formatar data
     }));
     const colunas = [
       { header: 'ID', key: 'id' },
@@ -148,8 +143,6 @@ async function gerarRelatorioFoodExcel(caminho) {
       { header: 'Data', key: 'date' },
       { header: 'Referência', key: 'reference' },
       { header: 'Valor da Compra', key: 'purchase_value' },
-      { header: 'Total (R$)', key: 'total' },
-      { header: 'Mês de Referência', key: 'month_reference' },
       { header: 'Validade', key: 'expiration' }
     ];
     await gerarExcel(caminho, 'Relatório de Alimentos', colunas, alimentos);

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard - Controle de Estoque CFM</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"/>
   <style>
     body {
       background-color: #f8f9fa;
@@ -34,29 +33,27 @@
 <body>
 
   <!-- Barra superior -->
-  <header class="header-bar d-flex justify-content-between align-items-center">
+  <div class="header-bar d-flex justify-content-between align-items-center">
     <h1>📊 Controle de Estoque - Painel - CFM</h1>
-    <button class="btn btn-outline-light" onclick="logout()" aria-label="Sair do sistema">
-      <i class="bi bi-box-arrow-right"></i> Logout
-    </button>
-  </header>
+    <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+  </div>
 
-  <main class="container py-4" role="main">
+  <div class="container py-4">
 
     <!-- Botões de Ação -->
     <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
-      <a class="btn btn-primary" href="/food.html" aria-label="Gerenciar Itens"><i class="bi bi-box"></i> Itens</a>
-      <a class="btn btn-success" href="/donation.html" aria-label="Registrar Doações"><i class="bi bi-plus-circle"></i> Doações</a>
-      <a class="btn btn-danger" href="/distribution.html" aria-label="Registrar Distribuição"><i class="bi bi-send"></i> Distribuições</a>
+      <button class="btn btn-primary" onclick="registrarAlimentos()">🧺 Registrar Itens</button>
+      <button class="btn btn-success" onclick="registrarDoacoes()">🎁 Registrar Doações</button>
+      <button class="btn btn-danger" onclick="registrarDistribuicao()">📦 Registrar Distribuição</button>
     </div>
 
     <!-- Totais -->
-    <div class="row text-center mb-3">
+    <div class="row text-center mb-4">
       <div class="col-md-4">
         <div class="card shadow-sm border-0">
           <div class="card-body bg-primary text-white rounded-3">
             <h5 class="card-title">🧺 Estoque Total</h5>
-            <p class="display-6" id="totalAlimentos">Carregando...</p>
+            <p class="display-6" id="totalAlimentos">0</p>
           </div>
         </div>
       </div>
@@ -64,7 +61,7 @@
         <div class="card shadow-sm border-0">
           <div class="card-body bg-success text-white rounded-3">
             <h5 class="card-title">🎁 Total de Doações</h5>
-            <p class="display-6" id="totalDoacoes">Carregando...</p>
+            <p class="display-6" id="totalDoacoes">0</p>
           </div>
         </div>
       </div>
@@ -72,21 +69,16 @@
         <div class="card shadow-sm border-0">
           <div class="card-body bg-danger text-white rounded-3">
             <h5 class="card-title">📦 Total de Distribuições</h5>
-            <p class="display-6" id="totalDistribuicoes">Carregando...</p>
+            <p class="display-6" id="totalDistribuicoes">0</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Alerta de erro -->
-    <div id="errorMessage" class="alert alert-danger text-center d-none" role="alert">
-      Não foi possível carregar os dados do painel.
-    </div>
-
     <!-- Tabelas de movimentações -->
     <div class="row g-4">
-      <section class="col-md-4" aria-labelledby="titulo-alimentos">
-        <h5 id="titulo-alimentos" class="fw-semibold">🧺 Últimos Itens</h5>
+      <div class="col-md-4">
+        <h5 class="mb-2">🧺 Últimos Itens</h5>
         <div class="table-wrapper">
           <table id="tabelaAlimentos" class="table table-striped table-bordered table-sm">
             <thead class="table-light text-center">
@@ -99,15 +91,14 @@
             <tbody></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="col-md-4" aria-labelledby="titulo-doacoes">
-        <h5 id="titulo-doacoes" class="fw-semibold">🎁 Últimas Doações</h5>
+      </div>
+      <div class="col-md-4">
+        <h5 class="mb-2">🎁 Últimas Doações</h5>
         <div class="table-wrapper">
           <table id="tabelaDoacoes" class="table table-striped table-bordered table-sm">
             <thead class="table-light text-center">
               <tr>
-                <th>Alimento</th>
+                <th>ID</th>
                 <th>Qtd</th>
                 <th>Doador</th>
                 <th>Data</th>
@@ -116,15 +107,14 @@
             <tbody></tbody>
           </table>
         </div>
-      </section>
-
-      <section class="col-md-4" aria-labelledby="titulo-distribuicoes">
-        <h5 id="titulo-distribuicoes" class="fw-semibold">📦 Últimas Distribuições</h5>
+      </div>
+      <div class="col-md-4">
+        <h5 class="mb-2">📦 Últimas Distribuições</h5>
         <div class="table-wrapper">
           <table id="tabelaDistribuicoes" class="table table-striped table-bordered table-sm">
             <thead class="table-light text-center">
               <tr>
-                <th>Alimento</th>
+                <th>ID</th>
                 <th>Qtd</th>
                 <th>Casa</th>
                 <th>Data</th>
@@ -133,9 +123,9 @@
             <tbody></tbody>
           </table>
         </div>
-      </section>
+      </div>
     </div>
-  </main>
+  </div>
 
   <script src="/js/auth.js"></script>
   <script defer src="/js/dashboard.js"></script>
@@ -144,7 +134,19 @@
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+  
+    function registrarAlimentos() {
+      window.location.href = '/food.html';
+    }
+  
+    function registrarDoacoes() {
+      window.location.href = '/donation.html';
+    }
+  
+    function registrarDistribuicao() {
+      window.location.href = '/distribution.html';
+    }
   </script>
-
+  
 </body>
 </html>

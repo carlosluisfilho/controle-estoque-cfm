@@ -23,43 +23,30 @@ const db = require('../database/db');
 console.log('📦 Criando tabelas de teste...');
 
 db.serialize(() => {
-  console.log('🚀 Resetando o banco de dados...');
-
-  // Apagar tabelas antigas
-  db.run(`DROP TABLE IF EXISTS users`);
-  db.run(`DROP TABLE IF EXISTS food`);
-  db.run(`DROP TABLE IF EXISTS donation`);
-  db.run(`DROP TABLE IF EXISTS distribution`);
-
-  // Criar tabela de usuários
   db.run(`
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
       role TEXT NOT NULL
     )
-  `);
+  `, onError('users'));
 
-  // Criar tabela de alimentos com os novos campos
   db.run(`
-    CREATE TABLE food (
+    CREATE TABLE IF NOT EXISTS food (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       quantity INTEGER NOT NULL DEFAULT 0,
       date TEXT,
       reference TEXT,
       purchase_value REAL,
-      total REAL,
-      month_reference TEXT,
       expiration TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `, onError('food'));
 
-  // Criar tabela de doações
   db.run(`
-    CREATE TABLE donation (
+    CREATE TABLE IF NOT EXISTS donation (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       food_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
@@ -70,11 +57,10 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(food_id) REFERENCES food(id)
     )
-  `);
+  `, onError('donation'));
 
-  // Criar tabela de distribuições
   db.run(`
-    CREATE TABLE distribution (
+    CREATE TABLE IF NOT EXISTS distribution (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       food_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
@@ -82,71 +68,44 @@ db.serialize(() => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(food_id) REFERENCES food(id)
     )
-  `);
+  `, onError('distribution'));
 
-  console.log('✅ Tabelas criadas com sucesso!');
+  console.log('✅ Todas as tabelas foram criadas.');
 
   // Inserir usuário admin padrão
-  const hash = bcrypt.hashSync('123456', 10);
-  db.run(`
-    INSERT INTO users (username, password, role)
-    VALUES (?, ?, ?)
-  `, ['admin', hash, 'admin'], (err) => {
+  db.get(`SELECT COUNT(*) AS count FROM users WHERE username = ?`, ['admin'], (err, row) => {
     if (err) {
-      console.error('❌ Erro ao inserir usuário admin:', err.message);
-    } else {
-      console.log('✅ Usuário admin inserido com sucesso.');
+      console.error('❌ Erro ao verificar usuário:', err.message);
+      process.exit(1);
     }
-  });
 
-  // Inserir dados iniciais em food com total e mês de referência
-  const stmtFood = db.prepare(`
-    INSERT INTO food (name, quantity, date, reference, purchase_value, total, month_reference, expiration)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  const alimentos = [
-    ['Arroz', 50, '2025-04-01', 'Kilos', 120.5, 50 * 120.5, '2025-04', '2026-04-01'],
-    ['Feijão', 40, '2025-03-20', 'Fardo', 95.8, 40 * 95.8, '2025-03', '2026-03-20'],
-    ['Macarrão', 30, '2025-03-15', 'Pacotes', 70.0, 30 * 70.0, '2025-03', '2026-03-15'],
-    ['Açúcar', 20, '2025-02-28', 'Kilos', 65.2, 20 * 65.2, '2025-02', '2026-02-28'],
-    ['Sal', 10, '2025-01-10', 'Kilos', 30.0, 10 * 30.0, '2025-01', '2026-01-10']
-  ];
-  alimentos.forEach(([name, quantity, date, reference, purchase_value, total, month_reference, expiration]) => {
-    stmtFood.run(name, quantity, date, reference, purchase_value, total, month_reference, expiration);
-  });
-  stmtFood.finalize();
-  console.log('📥 Alimentos inseridos com sucesso.');
+    if (row.count > 0) {
+      console.log('ℹ️ Usuário admin já existe no banco de testes.');
+      process.exit(0);
+    }
 
-  // Inserir dados de doações
-  const stmtDonation = db.prepare(`
-    INSERT INTO donation (food_id, quantity, donor_name, reference, expiration, donation_date)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
-  const doacoes = [
-    [1, 10, 'João da Silva', 'Kilos', '2026-04-01', '2025-04-01'],
-    [2, 5, 'Maria Oliveira', 'Fardo', '2026-03-20', '2025-03-21']
-  ];
-  doacoes.forEach(([food_id, quantity, donor_name, reference, expiration, donation_date]) => {
-    stmtDonation.run(food_id, quantity, donor_name, reference, expiration, donation_date);
-  });
-  stmtDonation.finalize();
-  console.log('📥 Doações inseridas com sucesso.');
-
-  // Inserir dados de distribuições
-  const stmtDistrib = db.prepare(`
-    INSERT INTO distribution (food_id, quantity, house_name)
-    VALUES (?, ?, ?)
-  `);
-  const distribuicoes = [
-    [1, 5, 'Casa Esperança'],
-    [2, 3, 'Lar São José']
-  ];
-  distribuicoes.forEach(([food_id, quantity, house_name]) => {
-    stmtDistrib.run(food_id, quantity, house_name);
-  });
-  stmtDistrib.finalize(() => {
-    console.log('📥 Distribuições inseridas com sucesso.');
-    console.log('✅ Banco de dados pronto!');
-    db.close();
+    const hash = bcrypt.hashSync('123456', 10);
+    db.run(
+      `INSERT INTO users (username, password, role) VALUES (?, ?, ?)`,
+      ['admin', hash, 'admin'],
+      (err) => {
+        if (err) {
+          console.error('❌ Erro ao inserir usuário admin:', err.message);
+          process.exit(1);
+        } else {
+          console.log('✅ Usuário admin inserido com sucesso.');
+          console.log('🎯 Banco de testes pronto para uso!');
+          process.exit(0);
+        }
+      }
+    );
   });
 });
+
+function onError(tabela) {
+  return (err) => {
+    if (err) {
+      console.error(`❌ Erro ao criar tabela '${tabela}':`, err.message);
+    }
+  };
+}

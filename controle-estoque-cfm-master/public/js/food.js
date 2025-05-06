@@ -1,3 +1,5 @@
+// public/js/food.js
+
 // ✅ Logout
 function handleLogout() {
   localStorage.removeItem("token");
@@ -40,8 +42,6 @@ async function fetchFoods() {
           <td>${food.date || "-"}</td>
           <td>${food.reference || "-"}</td>
           <td>R$ ${parseFloat(food.purchase_value || 0).toFixed(2)}</td>
-          <td>R$ ${parseFloat(food.total || 0).toFixed(2)}</td>
-          <td>${food.month_reference || "-"}</td>
           <td>${food.expiration || "-"}</td>
           <td>
             <button class="btn btn-danger btn-sm" onclick="deleteFood(${food.id})">Excluir</button>

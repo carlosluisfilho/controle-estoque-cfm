@@ -22,16 +22,19 @@ describe("🥫 Testes de Gerenciamento de Itens", () => {
           id: 99,
           name: "Arroz",
           quantity: 50,
-          date: "01-05-2025",
+          date: "2025-05-01",
           reference: "REF001",
           purchase_value: 100.0,
-          total: 5000.0,
-          month_reference: "2025-05",
-          expiration: "01-05-2026",
+          expiration: "2026-05-01",
         },
       ],
     });
-    
+
+    cy.reload();
+    cy.get("#foodTable tbody tr").should("have.length.at.least", 1);
+    cy.get("#foodTable tbody tr").first().within(() => {
+      cy.get("td").eq(1).should("contain", "Arroz");
+    });
   });
 
   it("✅ Deve adicionar novo alimento com sucesso", () => {

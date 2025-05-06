@@ -1,61 +1,29 @@
-// js/login.js (refatorado com UX melhorado)
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
-  const mensagemErro = document.getElementById("mensagemErro");
-  const btnEntrar = document.getElementById("btnEntrar");
-  const btnTexto = document.getElementById("btnEntrarTexto");
-  const btnSpinner = document.getElementById("btnSpinner");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    esconderErro();
-    bloquearBotao();
-
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
+document.getElementById('loginForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+  
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+  
     try {
-      const response = await fetch("/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-
+  
       const data = await response.json();
-
-      if (response.ok && data.token) {
-        localStorage.setItem("token", data.token);
-        window.location.href = "/";
-      } else {
-        mostrarErro(data.error || "Usuário ou senha inválidos.");
+  
+      if (!response.ok) {
+        document.getElementById('mensagemErro').textContent = data.error || 'Falha ao fazer login.';
+        document.getElementById('mensagemErro').classList.remove('d-none');
+        return;
       }
+  
+      localStorage.setItem('token', data.token);
+      window.location.href = '/painel'; // Redireciona para o painel após login
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      mostrarErro("Erro inesperado. Tente novamente mais tarde.");
-    } finally {
-      desbloquearBotao();
+      console.error('Erro na requisição de login:', error);
+      alert('Erro ao conectar com o servidor.');
     }
   });
-
-  function mostrarErro(msg) {
-    mensagemErro.textContent = msg;
-    mensagemErro.classList.remove("d-none");
-  }
-
-  function esconderErro() {
-    mensagemErro.textContent = "";
-    mensagemErro.classList.add("d-none");
-  }
-
-  function bloquearBotao() {
-    btnEntrar.disabled = true;
-    btnTexto.classList.add("d-none");
-    btnSpinner.classList.remove("d-none");
-  }
-
-  function desbloquearBotao() {
-    btnEntrar.disabled = false;
-    btnTexto.classList.remove("d-none");
-    btnSpinner.classList.add("d-none");
-  }
-});
+  

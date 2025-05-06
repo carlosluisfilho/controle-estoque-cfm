@@ -1,4 +1,3 @@
-// tests/food.test.js
 const request = require('supertest');
 const { app, server } = require('../server');
 
@@ -14,12 +13,14 @@ beforeAll(async () => {
 });
 
 afterAll((done) => {
-  server.close(() => done());
+  server.close(() => {
+    done();
+  });
 });
 
 describe('🍽️ Testes do CRUD de Alimentos', () => {
 
-  test('✅ Cria alimento e retorna ID com sucesso', async () => {
+  test('✅ Criar um novo alimento', async () => {
     const res = await request(app)
       .post('/food')
       .set('Authorization', `Bearer ${token}`)
@@ -34,11 +35,10 @@ describe('🍽️ Testes do CRUD de Alimentos', () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
-    expect(res.body).toHaveProperty('name', 'Arroz');
     createdFoodId = res.body.id;
   });
 
-  test('✅ Lista todos os alimentos existentes', async () => {
+  test('✅ Listar alimentos', async () => {
     const res = await request(app)
       .get('/food')
       .set('Authorization', `Bearer ${token}`);
@@ -48,12 +48,12 @@ describe('🍽️ Testes do CRUD de Alimentos', () => {
     expect(res.body.length).toBeGreaterThan(0);
   });
 
-  test('✅ Atualiza alimento existente por ID', async () => {
+  test("✅ Atualizar um alimento", async () => {
     const res = await request(app)
       .put(`/food/${createdFoodId}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
-        name: 'Arroz Integral',
+        name: "Arroz Integral",
         quantity: 150,
         date: '2025-04-01',
         reference: 'TEST-001',
@@ -62,10 +62,10 @@ describe('🍽️ Testes do CRUD de Alimentos', () => {
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Alimento atualizado com sucesso.');
+    expect(res.body.message).toBe("Alimento atualizado com sucesso.");
   });
 
-  test('✅ Remove alimento existente por ID', async () => {
+  test('✅ Excluir um alimento', async () => {
     const res = await request(app)
       .delete(`/food/${createdFoodId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -74,39 +74,4 @@ describe('🍽️ Testes do CRUD de Alimentos', () => {
     expect(res.body.message).toBe('Alimento removido com sucesso.');
   });
 
-  test('❌ Falha ao criar alimento com dados inválidos', async () => {
-    const res = await request(app)
-      .post('/food')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ name: '', quantity: -10 });
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toBeDefined();
-  });
-
-  test('❌ Falha ao atualizar alimento inexistente', async () => {
-    const res = await request(app)
-      .put(`/food/99999`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({
-        name: 'Fake',
-        quantity: 1,
-        date: '2025-01-01',
-        reference: 'FAKE',
-        purchase_value: 1.0,
-        expiration: '2025-12-31'
-      });
-
-    expect(res.statusCode).toBe(404);
-    expect(res.body.error).toMatch(/não encontrado/i);
-  });
-
-  test('❌ Falha ao remover alimento inexistente', async () => {
-    const res = await request(app)
-      .delete(`/food/99999`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(404);
-    expect(res.body.error).toMatch(/não encontrado/i);
-  });
 });

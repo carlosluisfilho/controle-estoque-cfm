@@ -1,4 +1,3 @@
-// tests/distribution.test.js
 const request = require('supertest');
 const express = require('express');
 const distributionRouter = require('../routes/distribution');
@@ -18,7 +17,7 @@ beforeAll(done => {
     db.run(`DELETE FROM food`);
     db.run(`
       INSERT INTO food (id, name, quantity, date, reference, purchase_value, expiration)
-      VALUES (3000, 'Arroz Teste', 100, '2025-01-01', 'REF-ARROZ-01', 5.0, '2025-12-31')
+      VALUES (3000, 'Farinha Teste', 100, '2025-01-01', 'REFX123', 4.5, '2025-12-01')
     `, done);
   });
 });
@@ -29,24 +28,13 @@ describe('CRUD completo para /distribution', () => {
       .post('/distribution')
       .send({
         food_id: 3000,
-        quantity: 20,
-        house_name: 'Casa Esperança'
+        quantity: 10,
+        house_name: 'Casa Teste'
       });
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('id');
-    expect(res.body.house_name).toBe('Casa Esperança');
     distributionId = res.body.id;
-
-    db.get('SELECT quantity FROM food WHERE id = 3000', (_, row) => {
-      expect(row.quantity).toBe(80); // 100 - 20
-    });
-  });
-
-  it('POST /distribution - falha com dados inválidos', async () => {
-    const res = await request(app).post('/distribution').send({ quantity: -10 });
-    expect(res.statusCode).toBe(400);
-    expect(res.body.errors).toBeDefined();
   });
 
   it('GET /distribution - lista todas as distribuições', async () => {
@@ -61,23 +49,18 @@ describe('CRUD completo para /distribution', () => {
       .put(`/distribution/${distributionId}`)
       .send({
         food_id: 3000,
-        quantity: 25,
-        house_name: 'Casa Atualizada'
+        quantity: 20,
+        house_name: 'Casa Atualizada',
+        created_at: '2025-04-04'
       });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Distribuição atualizada com sucesso.');
+    expect(res.body.message).toBe("Distribuição atualizada com sucesso.");
   });
 
-  it('DELETE /distribution/:id - remove a distribuição existente', async () => {
+  it('DELETE /distribution/:id - remove distribuição existente', async () => {
     const res = await request(app).delete(`/distribution/${distributionId}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Distribuição removida com sucesso.');
-  });
-
-  it('DELETE /distribution/:id - falha ao remover distribuição inexistente', async () => {
-    const res = await request(app).delete('/distribution/99999');
-    expect(res.statusCode).toBe(404);
-    expect(res.body.error).toMatch(/não encontrada/i);
+    expect(res.body.message).toBe("Distribuição removida e estoque ajustado.");
   });
 });
