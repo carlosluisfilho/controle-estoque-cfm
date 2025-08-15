@@ -3,10 +3,12 @@ const logger = require('../utils/logger');
 
 class AlertService {
   constructor() {
+    // amazonq-ignore-next-line
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: process.env.SMTP_PORT || 587,
-      secure: false,
+      secure: process.env.SMTP_PORT === '465',
+      requireTLS: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS

@@ -10,7 +10,7 @@ class LoadingManager {
     element.dataset.originalText = element.textContent || element.value;
     
     if (element.tagName === 'BUTTON') {
-      element.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${text}`;
+      element.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${encodeURIComponent(text).replace(/%20/g, ' ')}`;
     } else {
       element.classList.add('loading');
     }

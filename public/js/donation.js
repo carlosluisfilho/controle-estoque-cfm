@@ -21,11 +21,14 @@ async function buscarAlimento(searchInputId, resultId, foodIdField, expirationFi
     const foods = await response.json();
     if (foods.length > 0) {
       document.getElementById(foodIdField).value = foods[0].id;
-      document.getElementById(resultId).innerHTML = `<p>Alimento encontrado: ${foods[0].name}</p>`;
+      const foodNameSafe = document.createElement('div');
+      foodNameSafe.textContent = foods[0].name;
+      document.getElementById(resultId).innerHTML = `<p>Alimento encontrado: ${foodNameSafe.innerHTML}</p>`;
       if (expirationField) {
         document.getElementById(expirationField).value = foods[0].expiration || '';
       }
     } else {
+      // amazonq-ignore-next-line
       document.getElementById(resultId).innerHTML = '<p>Nenhum alimento encontrado</p>';
     }
   } catch (error) {

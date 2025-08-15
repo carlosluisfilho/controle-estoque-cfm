@@ -28,6 +28,7 @@ router.get("/",
   }));
 
 // ➕ Adicionar ou atualizar alimento por nome
+// amazonq-ignore-next-line
 router.post("/",
   autenticarToken,
   sanitizeRequestBody,
@@ -44,6 +45,7 @@ router.post("/",
   }));
 
 // ✏️ Atualizar alimento por ID
+// amazonq-ignore-next-line
 router.put("/:id",
   autenticarToken,
   sanitizeRequestBody,

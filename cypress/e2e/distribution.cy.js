@@ -6,8 +6,8 @@ describe('🚚 API de Distribuições', () => {
   before(() => {
     // Autentica via API e armazena o token para os testes
     cy.request('POST', '/auth/login', {
-      username: 'admin',
-      password: '123456',
+      username: Cypress.env('TEST_USERNAME') || 'admin',
+      password: Cypress.env('TEST_PASSWORD') || '123456',
     }).then((response) => {
       expect(response.status).to.eq(200);
       token = response.body.token;

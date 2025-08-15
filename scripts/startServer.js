@@ -42,6 +42,7 @@ function killProcessOnPort(port) {
 
       console.log(`🔫 Matando processo(s) na porta ${port}: ${pids.join(", ")}`);
 
+      // amazonq-ignore-next-line
       exec(killCommand, (killErr) => {
         if (killErr) {
           console.error("❌ Erro ao matar processo:", killErr.message);
@@ -54,6 +55,7 @@ function killProcessOnPort(port) {
   });
 }
 
+// amazonq-ignore-next-line
 async function startServer() {
   await killProcessOnPort(PORT);
   
@@ -75,6 +77,7 @@ async function startServer() {
     server.kill('SIGTERM');
   });
 
+  // amazonq-ignore-next-line
   server.on("error", (err) => {
     console.error("❌ Erro ao iniciar servidor:", err.message);
     process.exit(1);

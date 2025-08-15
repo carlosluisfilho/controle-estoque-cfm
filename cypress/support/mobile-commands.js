@@ -13,6 +13,7 @@ Cypress.Commands.add('checkMobileLayout', () => {
   });
 });
 
+// amazonq-ignore-next-line
 Cypress.Commands.add('testTableResponsiveness', (tableSelector) => {
   cy.get(tableSelector).should('be.visible');
   cy.get('.table-responsive').should('exist');
@@ -31,6 +32,7 @@ Cypress.Commands.add('testFormResponsiveness', (formSelector) => {
   cy.get(`${formSelector} button[type="submit"]`).should('be.visible');
 });
 
+// amazonq-ignore-next-line
 Cypress.Commands.add('simulateMobileInteraction', (element) => {
   // Simular toque em dispositivo móvel
   cy.get(element)

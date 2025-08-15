@@ -19,7 +19,9 @@ describe('🍽️ Tela de Itens (Food)', () => {
       timeout: 30000,
       failOnStatusCode: false,
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', token);
+        if (token) {
+          win.localStorage.setItem('token', token);
+        }
       },
     });
     cy.wait(1000); // Aguarda carregamento completo

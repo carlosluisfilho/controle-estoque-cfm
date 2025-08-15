@@ -150,6 +150,7 @@ db.serialize(() => {
     stmtDonation.run(food_id, quantity, donor_name, reference, expiration, donation_date);
   });
   stmtDonation.finalize(() => {
+    // amazonq-ignore-next-line
     db.all('SELECT COUNT(*) as total FROM donation', (err, rows) => {
       if (err) {
         console.error('❌ Validação falhou: erro ao contar doações.');

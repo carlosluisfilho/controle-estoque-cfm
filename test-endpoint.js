@@ -10,7 +10,10 @@ async function testEndpoint() {
     const loginResponse = await fetch('http://localhost:3003/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'admin', password: '123456' })
+      body: JSON.stringify({ 
+        username: process.env.TEST_USERNAME || 'admin', 
+        password: process.env.TEST_PASSWORD || '123456' 
+      })
     });
     
     const loginData = await loginResponse.json();

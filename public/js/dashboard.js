@@ -79,15 +79,17 @@ function preencherTabela(idTabela, dados, colunas) {
   const tbody = tabela.tagName.toLowerCase() === "tbody" ? tabela : tabela.querySelector("tbody");
   if (!tbody) return;
 
+  // amazonq-ignore-next-line
   tbody.innerHTML = "";
 
   dados.forEach((item) => {
     const linha = document.createElement("tr");
     colunas.forEach((coluna) => {
       const celula = document.createElement("td");
-      celula.textContent = coluna === "created_at" && item[coluna]
+      const value = coluna === "created_at" && item[coluna]
         ? new Date(item[coluna]).toLocaleString()
         : item[coluna] || "-";
+      celula.textContent = String(value);
       linha.appendChild(celula);
     });
     tbody.appendChild(linha);

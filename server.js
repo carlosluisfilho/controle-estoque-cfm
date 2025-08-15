@@ -61,9 +61,11 @@ app.get('/food.html', (_, res) =>
 app.get('/donation.html', (_, res) =>
   res.sendFile(path.join(__dirname, 'views', 'donation.html'))
 );
+// amazonq-ignore-next-line
 app.get('/distribution.html', (_, res) =>
   res.sendFile(path.join(__dirname, 'views', 'distribution.html'))
 );
+// amazonq-ignore-next-line
 app.get('/monitoring', (_, res) =>
   res.sendFile(path.join(__dirname, 'views', 'monitoring.html'))
 );

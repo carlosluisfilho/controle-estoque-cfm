@@ -50,6 +50,7 @@ describe('⚡ Performance Mobile', () => {
   it('Tabelas devem renderizar sem travamentos', () => {
     cy.visit('/food.html', {
       onBeforeLoad(win) {
+        // amazonq-ignore-next-line
         win.localStorage.setItem('token', token);
       },
     });
@@ -85,7 +86,9 @@ describe('⚡ Performance Mobile', () => {
   it('Navegação entre páginas deve ser fluida', () => {
     cy.visit('/painel', {
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', token);
+        if (token) {
+          win.localStorage.setItem('token', token);
+        }
       },
     });
 

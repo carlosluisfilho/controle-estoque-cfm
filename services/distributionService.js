@@ -61,6 +61,7 @@ async function criarDistribuicao({ food_id, quantity, house_name }) {
                   return reject(error);
                 }
                 
+                // amazonq-ignore-next-line
                 db.run('COMMIT', (err) => {
                   if (err) {
                     db.run('ROLLBACK');

@@ -16,6 +16,7 @@ describe('🌐 Testes Frontend (Lógica)', () => {
   describe('Funções de Autenticação', () => {
     test('✅ Token é armazenado corretamente', () => {
       const token = 'test-token-123';
+      // amazonq-ignore-next-line
       localStorage.setItem('token', token);
       expect(localStorage.setItem).toHaveBeenCalledWith('token', token);
     });

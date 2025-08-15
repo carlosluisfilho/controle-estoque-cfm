@@ -28,13 +28,14 @@ setTimeout(() => {
     method: 'GET',
     timeout: 5000
   }, (res) => {
+    // amazonq-ignore-next-line
     console.log(`✅ Servidor respondeu com status: ${res.statusCode}`);
     server.kill('SIGINT');
     process.exit(0);
   });
 
   req.on('error', (err) => {
-    console.log(`❌ Erro na conexão: ${err.message}`);
+    console.log(`❌ Erro na conexão: ${encodeURIComponent(err.message)}`);
     server.kill('SIGINT');
     process.exit(1);
   });

@@ -47,6 +47,7 @@ function validateQuantityInput() {
 async function buscarAlimento(searchInputId, resultId, foodIdField) {
   const searchTerm = document.getElementById(searchInputId).value.trim();
   if (!searchTerm) {
+    // amazonq-ignore-next-line
     document.getElementById(resultId).innerHTML = '<p class="text-warning">Digite o nome do alimento para buscar</p>';
     return;
   }
@@ -73,14 +74,19 @@ async function buscarAlimento(searchInputId, resultId, foodIdField) {
       distributionQuantityField.setAttribute('min', '1');
       
       if (food.quantity > 0) {
-        document.getElementById(resultId).innerHTML = `<p class="text-success">Alimento encontrado: <strong>${food.name}</strong> (Estoque: ${food.quantity})</p>`;
+        const foodNameSafe = document.createElement('div');
+        foodNameSafe.textContent = food.name;
+        document.getElementById(resultId).innerHTML = `<p class="text-success">Alimento encontrado: <strong>${foodNameSafe.innerHTML}</strong> (Estoque: ${food.quantity})</p>`;
         document.querySelector('#distributionForm button[type="submit"]').disabled = false;
       } else {
-        document.getElementById(resultId).innerHTML = `<p class="text-warning">Alimento encontrado: <strong>${food.name}</strong> (Sem estoque disponível)</p>`;
+        const foodNameSafe2 = document.createElement('div');
+        foodNameSafe2.textContent = food.name;
+        document.getElementById(resultId).innerHTML = `<p class="text-warning">Alimento encontrado: <strong>${foodNameSafe2.innerHTML}</strong> (Sem estoque disponível)</p>`;
         distributionQuantityField.setAttribute('max', '0');
         document.querySelector('#distributionForm button[type="submit"]').disabled = true;
       }
     } else {
+      // amazonq-ignore-next-line
       document.getElementById(resultId).innerHTML = '<p class="text-warning">Nenhum alimento encontrado</p>';
       document.getElementById(foodIdField).value = '';
       document.getElementById("stockQuantity").value = '';

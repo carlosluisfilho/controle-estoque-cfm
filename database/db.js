@@ -66,7 +66,7 @@ function criarTabelas() {
 function onError(tabela) {
   return (err) => {
     if (err) {
-      console.error(`❌ Erro ao criar a tabela '${tabela}':`, err.message);
+      console.error(`❌ Erro ao criar a tabela '${encodeURIComponent(tabela)}':`, encodeURIComponent(err.message));
     }
   };
 }

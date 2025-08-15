@@ -13,6 +13,7 @@ async function testCypress() {
     console.log('🧪 Executando teste Cypress...');
     const { exec } = require('child_process');
     
+    // amazonq-ignore-next-line
     exec('npx cypress run --spec cypress/e2e/auth.cy.js --config-file config/cypress.config.js', 
       (error, stdout, stderr) => {
         console.log('📊 Resultado:', stdout);

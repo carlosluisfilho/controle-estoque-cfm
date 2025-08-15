@@ -18,7 +18,7 @@ async function main() {
     });
   
     servidor.stderr.on('data', (data) => {
-      console.log('📤 ERR:', data.toString().trim());
+      console.log('📤 ERR:', encodeURIComponent(data.toString().trim()));
     });
   
     // Aguardar 3 segundos
