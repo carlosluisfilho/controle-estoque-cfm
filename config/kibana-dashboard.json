@@ -1,0 +1,30 @@
+{
+  "version": "8.11.0",
+  "objects": [
+    {
+      "id": "cfm-estoque-overview",
+      "type": "dashboard",
+      "attributes": {
+        "title": "CFM Estoque - Overview",
+        "description": "Dashboard principal para monitoramento do sistema de controle de estoque",
+        "panelsJSON": "[{\"version\":\"8.11.0\",\"gridData\":{\"x\":0,\"y\":0,\"w\":24,\"h\":15,\"i\":\"1\"},\"panelIndex\":\"1\",\"embeddableConfig\":{},\"panelRefName\":\"panel_1\"}]",
+        "timeRestore": false,
+        "version": 1
+      }
+    },
+    {
+      "id": "cfm-logs-by-level",
+      "type": "visualization",
+      "attributes": {
+        "title": "Logs por Nível",
+        "visState": "{\"title\":\"Logs por Nível\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"level.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"cfm-estoque-logs-*\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    }
+  ]
+}
