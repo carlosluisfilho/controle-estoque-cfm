@@ -1,28 +1,92 @@
 const distributionRepository = require('../repositories/distributionRepository');
 const foodRepository = require('../repositories/foodRepository');
-const { dbRun } = require('../utils/dbUtils');
+const { dbRun, dbGet } = require('../utils/dbUtils');
 const cache = require('../utils/cache');
+const db = require('../database/db');
 
 async function criarDistribuicao({ food_id, quantity, house_name }) {
-  const createdAt = new Date().toISOString();
-  
-  const result = await distributionRepository.create({
-    food_id, quantity, house_name, created_at: createdAt
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run('BEGIN TRANSACTION');
+      
+      // Verificar se o alimento existe e tem estoque suficiente
+      db.get('SELECT id, name, quantity FROM food WHERE id = ?', [food_id], (err, food) => {
+        if (err) {
+          db.run('ROLLBACK');
+          return reject(err);
+        }
+        
+        if (!food) {
+          db.run('ROLLBACK');
+          const error = new Error('Alimento não encontrado.');
+          error.statusCode = 404;
+          return reject(error);
+        }
+        
+        if (food.quantity < quantity) {
+          db.run('ROLLBACK');
+          const error = new Error(`Estoque insuficiente. Disponível: ${food.quantity}, Solicitado: ${quantity}`);
+          error.statusCode = 400;
+          return reject(error);
+        }
+        
+        const createdAt = new Date().toISOString();
+        
+        // Criar a distribuição
+        db.run(
+          'INSERT INTO distribution (food_id, quantity, house_name, created_at) VALUES (?, ?, ?, ?)',
+          [food_id, quantity, house_name, createdAt],
+          function(err) {
+            if (err) {
+              db.run('ROLLBACK');
+              return reject(err);
+            }
+            
+            const distributionId = this.lastID;
+            
+            // Atualizar o estoque
+            db.run(
+              'UPDATE food SET quantity = quantity - ? WHERE id = ? AND quantity >= ?',
+              [quantity, food_id, quantity],
+              function(err) {
+                if (err) {
+                  db.run('ROLLBACK');
+                  return reject(err);
+                }
+                
+                if (this.changes === 0) {
+                  db.run('ROLLBACK');
+                  const error = new Error('Falha ao atualizar estoque. Verifique se há quantidade suficiente.');
+                  error.statusCode = 400;
+                  return reject(error);
+                }
+                
+                db.run('COMMIT', (err) => {
+                  if (err) {
+                    db.run('ROLLBACK');
+                    return reject(err);
+                  }
+                  
+                  // Invalidar cache
+                  cache.invalidatePattern('distribution:');
+                  cache.invalidatePattern('dashboard:');
+                  cache.invalidatePattern('food:');
+                  
+                  resolve({
+                    id: distributionId,
+                    food_id,
+                    quantity,
+                    house_name,
+                    created_at: createdAt,
+                  });
+                });
+              }
+            );
+          }
+        );
+      });
+    });
   });
-  
-  await dbRun('UPDATE food SET quantity = quantity - ? WHERE id = ?', [quantity, food_id]);
-  
-  // Invalidar cache
-  cache.invalidatePattern('distribution:');
-  cache.invalidatePattern('dashboard:');
-  
-  return {
-    id: result.id,
-    food_id,
-    quantity,
-    house_name,
-    created_at: createdAt,
-  };
 }
 
 async function listarDistribuicoes() {
