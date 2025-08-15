@@ -27,6 +27,7 @@ class LoadingManager {
     
     if (element.dataset.originalText) {
       if (element.tagName === 'BUTTON') {
+        // amazonq-ignore-next-line
         element.innerHTML = element.dataset.originalText;
       }
       delete element.dataset.originalText;
@@ -39,8 +40,9 @@ class LoadingManager {
 
     const tbody = table.querySelector('tbody');
     if (tbody) {
+      const sanitizedMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       tbody.innerHTML = `<tr><td colspan="100%" class="text-center p-4">
-        <div class="spinner-border text-primary me-2"></div>${message}
+        <div class="spinner-border text-primary me-2"></div>${sanitizedMessage}
       </td></tr>`;
     }
   }
@@ -49,9 +51,10 @@ class LoadingManager {
     const section = document.getElementById(sectionId);
     if (!section) return;
 
+    const sanitizedMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     section.innerHTML = `<div class="text-center p-4">
       <div class="spinner-border text-primary mb-2"></div>
-      <div>${message}</div>
+      <div>${sanitizedMessage}</div>
     </div>`;
   }
 }

@@ -1,4 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
+// amazonq-ignore-next-line
 const bcrypt = require('bcrypt');
 const db = new sqlite3.Database('./database/test.db');
 

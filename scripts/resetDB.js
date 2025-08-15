@@ -67,7 +67,7 @@ db.serialize(() => {
   console.log('✅ Tabelas criadas com sucesso!');
 
   // Inserir usuário admin padrão
-  const hash = bcrypt.hashSync('123456', 10);
+  const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'defaultPassword', 10);
   db.run(`
     INSERT INTO users (username, password, role)
     VALUES (?, ?, ?)

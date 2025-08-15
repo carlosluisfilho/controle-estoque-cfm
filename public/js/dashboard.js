@@ -86,9 +86,11 @@ function preencherTabela(idTabela, dados, colunas) {
     const linha = document.createElement("tr");
     colunas.forEach((coluna) => {
       const celula = document.createElement("td");
-      const value = coluna === "created_at" && item[coluna]
-        ? new Date(item[coluna]).toLocaleString()
-        : item[coluna] || "-";
+      let value = item[coluna] || "-";
+      if (coluna === "created_at" && item[coluna]) {
+        const date = new Date(item[coluna]);
+        value = isNaN(date.getTime()) ? item[coluna] : date.toLocaleString('pt-BR');
+      }
       celula.textContent = String(value);
       linha.appendChild(celula);
     });

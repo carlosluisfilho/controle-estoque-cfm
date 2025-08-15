@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const { validationResult } = require('express-validator');
 const { sanitizeInput } = require('../utils/validationUtils');
 

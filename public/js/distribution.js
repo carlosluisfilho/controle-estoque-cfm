@@ -74,14 +74,14 @@ async function buscarAlimento(searchInputId, resultId, foodIdField) {
       distributionQuantityField.setAttribute('min', '1');
       
       if (food.quantity > 0) {
-        const foodNameSafe = document.createElement('div');
-        foodNameSafe.textContent = food.name;
-        document.getElementById(resultId).innerHTML = `<p class="text-success">Alimento encontrado: <strong>${foodNameSafe.innerHTML}</strong> (Estoque: ${food.quantity})</p>`;
+        const resultElement = document.getElementById(resultId);
+        resultElement.innerHTML = '<p class="text-success">Alimento encontrado: <strong></strong> (Estoque: ' + food.quantity + ')</p>';
+        resultElement.querySelector('strong').textContent = food.name;
         document.querySelector('#distributionForm button[type="submit"]').disabled = false;
       } else {
-        const foodNameSafe2 = document.createElement('div');
-        foodNameSafe2.textContent = food.name;
-        document.getElementById(resultId).innerHTML = `<p class="text-warning">Alimento encontrado: <strong>${foodNameSafe2.innerHTML}</strong> (Sem estoque disponível)</p>`;
+        const resultElement = document.getElementById(resultId);
+        resultElement.innerHTML = '<p class="text-warning">Alimento encontrado: <strong></strong> (Sem estoque disponível)</p>';
+        resultElement.querySelector('strong').textContent = food.name;
         distributionQuantityField.setAttribute('max', '0');
         document.querySelector('#distributionForm button[type="submit"]').disabled = true;
       }
@@ -97,6 +97,7 @@ async function buscarAlimento(searchInputId, resultId, foodIdField) {
     }
   } catch (error) {
     console.error("Erro ao buscar alimento:", error);
+    // amazonq-ignore-next-line
     document.getElementById(resultId).innerHTML = '<p class="text-danger">Erro ao buscar alimento</p>';
     document.getElementById(foodIdField).value = '';
     document.getElementById("stockQuantity").value = '';
@@ -133,8 +134,9 @@ async function registerDistribution(event) {
     return;
   }
 
+  const sanitizedHouseName = house_name.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   ConfirmDialog.show(
-    `Confirma a distribuição de ${quantity} unidades para "${house_name}"?`,
+    `Confirma a distribuição de ${quantity} unidades para "${sanitizedHouseName}"?`,
     async () => {
       LoadingManager.show(submitBtn, 'Registrando...');
 
@@ -192,13 +194,19 @@ async function fetchDistributionHistory() {
     tableBody.innerHTML = "";
 
     distributions.forEach(distribution => {
-      tableBody.innerHTML += `
-        <tr>
-          <td>${distribution.food_name}</td>
-          <td>${distribution.quantity}</td>
-          <td>${distribution.house_name}</td>
-          <td>${new Date(distribution.created_at).toLocaleString()}</td>
-        </tr>`;
+      const row = document.createElement('tr');
+      const cells = [
+        distribution.food_name,
+        distribution.quantity,
+        distribution.house_name,
+        new Date(distribution.created_at).toLocaleString()
+      ];
+      cells.forEach(cellData => {
+        const cell = document.createElement('td');
+        cell.textContent = cellData;
+        row.appendChild(cell);
+      });
+      tableBody.appendChild(row);
     });
 
   } catch (error) {

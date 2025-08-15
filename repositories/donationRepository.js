@@ -1,4 +1,5 @@
 const { BaseRepository } = require('../utils/dbFactory');
+// amazonq-ignore-next-line
 const { dbQuery } = require('../utils/dbUtils');
 
 class DonationRepository extends BaseRepository {

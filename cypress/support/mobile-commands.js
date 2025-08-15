@@ -15,12 +15,16 @@ Cypress.Commands.add('checkMobileLayout', () => {
 
 // amazonq-ignore-next-line
 Cypress.Commands.add('testTableResponsiveness', (tableSelector) => {
+  // Verificar se há token de autorização
+  cy.window().its('sessionStorage').invoke('getItem', 'token').should('exist');
   cy.get(tableSelector).should('be.visible');
   cy.get('.table-responsive').should('exist');
   cy.get('.table-responsive').should('have.css', 'overflow-x', 'auto');
 });
 
 Cypress.Commands.add('testFormResponsiveness', (formSelector) => {
+  // Verificar se há token de autorização
+  cy.window().its('sessionStorage').invoke('getItem', 'token').should('exist');
   cy.get(formSelector).should('be.visible');
   
   // Verificar se inputs são acessíveis

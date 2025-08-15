@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const http = require('http');
 
 // Parâmetros

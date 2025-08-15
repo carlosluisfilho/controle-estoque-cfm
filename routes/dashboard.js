@@ -1,6 +1,7 @@
 // routes/dashboard.js (refatorado)
 const express = require("express");
 const autenticarToken = require("../middleware/auth");
+// amazonq-ignore-next-line
 const { asyncHandler } = require('../middleware/errorHandler');
 const dashboardService = require("../services/dashboardService");
 

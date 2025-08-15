@@ -9,8 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function buscarAlimento(searchInputId, resultId, foodIdField, expirationField) {
-  const searchTerm = document.getElementById(searchInputId).value;
-  if (!searchTerm) return;
+  const searchTerm = document.getElementById(searchInputId).value.trim();
+  if (!searchTerm) {
+    document.getElementById(resultId).innerHTML = '<p class="text-warning">Digite o nome do alimento para buscar</p>';
+    return;
+  }
 
   try {
     const token = localStorage.getItem("token");
@@ -21,9 +24,9 @@ async function buscarAlimento(searchInputId, resultId, foodIdField, expirationFi
     const foods = await response.json();
     if (foods.length > 0) {
       document.getElementById(foodIdField).value = foods[0].id;
-      const foodNameSafe = document.createElement('div');
-      foodNameSafe.textContent = foods[0].name;
-      document.getElementById(resultId).innerHTML = `<p>Alimento encontrado: ${foodNameSafe.innerHTML}</p>`;
+      const resultElement = document.getElementById(resultId);
+      resultElement.innerHTML = '<p>Alimento encontrado: <strong></strong></p>';
+      resultElement.querySelector('strong').textContent = foods[0].name;
       if (expirationField) {
         document.getElementById(expirationField).value = foods[0].expiration || '';
       }
@@ -96,14 +99,20 @@ async function fetchDonationHistory() {
     tbody.innerHTML = "";
 
     data.forEach((d) => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${d.food_name}</td>
-          <td>${d.quantity}</td>
-          <td>${d.donor_name || "-"}</td>
-          <td>${d.donation_date || "-"}</td>
-          <td>${d.expiration || "-"}</td>
-        </tr>`;
+      const row = document.createElement('tr');
+      const cells = [
+        d.food_name,
+        d.quantity,
+        d.donor_name || "-",
+        d.donation_date || "-",
+        d.expiration || "-"
+      ];
+      cells.forEach(cellData => {
+        const cell = document.createElement('td');
+        cell.textContent = cellData;
+        row.appendChild(cell);
+      });
+      tbody.appendChild(row);
     });
   } catch (error) {
     exibirMensagem("Erro ao carregar histórico de doações: " + error.message, "danger");

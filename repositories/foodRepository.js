@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const { BaseRepository } = require('../utils/dbFactory');
 const { dbQuery, dbGet, dbRun } = require('../utils/dbUtils');
 

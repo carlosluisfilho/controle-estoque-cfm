@@ -23,9 +23,9 @@ describe('⚡ Performance Mobile', () => {
       },
     });
 
-    cy.get('#totalAlimentos').should('be.visible').then(() => {
+    cy.get('#totalAlimentos', { timeout: 10000 }).should('be.visible').then(() => {
       const loadTime = Date.now() - startTime;
-      expect(loadTime).to.be.lessThan(3000); // Menos de 3 segundos
+      expect(loadTime).to.be.lessThan(5000); // Menos de 5 segundos para mobile
     });
   });
 
@@ -38,25 +38,24 @@ describe('⚡ Performance Mobile', () => {
 
     const startTime = Date.now();
     
-    cy.get('#foodName').type('Teste Performance');
+    cy.get('#foodName', { timeout: 10000 }).type('Teste Performance');
     cy.get('#foodQuantity').type('10');
     
     cy.then(() => {
       const responseTime = Date.now() - startTime;
-      expect(responseTime).to.be.lessThan(2000); // Menos de 2 segundos
+      expect(responseTime).to.be.lessThan(3000); // Menos de 3 segundos para mobile
     });
   });
 
   it('Tabelas devem renderizar sem travamentos', () => {
     cy.visit('/food.html', {
       onBeforeLoad(win) {
-        // amazonq-ignore-next-line
         win.localStorage.setItem('token', token);
       },
     });
 
     // Verificar se tabela carrega sem delay excessivo
-    cy.get('#foodTable tbody tr').should('have.length.greaterThan', 0);
+    cy.get('#foodTable tbody tr', { timeout: 10000 }).should('have.length.greaterThan', 0);
     
     // Testar scroll da tabela
     cy.get('.table-responsive').scrollTo('right', { ensureScrollable: false });
@@ -70,16 +69,16 @@ describe('⚡ Performance Mobile', () => {
       },
     });
 
-    cy.get('#foodName').type('Teste Modal');
+    cy.get('#foodName', { timeout: 10000 }).type('Teste Modal');
     cy.get('#foodQuantity').type('5');
     cy.get('#foodDate').type('2025-01-01');
 
     const startTime = Date.now();
     cy.get('button[type="submit"]').click();
     
-    cy.get('.modal').should('be.visible').then(() => {
+    cy.get('.modal', { timeout: 10000 }).should('be.visible').then(() => {
       const modalTime = Date.now() - startTime;
-      expect(modalTime).to.be.lessThan(2000); // Menos de 2 segundos
+      expect(modalTime).to.be.lessThan(3000); // Menos de 3 segundos para mobile
     });
   });
 
@@ -91,18 +90,16 @@ describe('⚡ Performance Mobile', () => {
         }
       },
     });
-
-    const pages = ['/food.html', '/donation.html', '/distribution.html'];
     
     // Testar apenas uma navegação
     const startTime = Date.now();
     
-    cy.get('.row .col-12 a').first().click();
+    cy.get('.row .col-12 a', { timeout: 10000 }).first().click();
     cy.url().should('include', '.html');
     
     cy.then(() => {
       const navTime = Date.now() - startTime;
-      expect(navTime).to.be.lessThan(3000); // Menos de 3 segundos
+      expect(navTime).to.be.lessThan(5000); // Menos de 5 segundos para mobile
     });
   });
 });

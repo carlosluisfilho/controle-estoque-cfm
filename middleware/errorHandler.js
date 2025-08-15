@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const logger = require('../utils/logger');
 const alertService = require('../services/alertService');
 

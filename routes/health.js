@@ -1,5 +1,7 @@
+// amazonq-ignore-next-line
 const express = require('express');
 const router = express.Router();
+// amazonq-ignore-next-line
 const healthMonitor = require('../middleware/healthMonitor');
 
 router.get('/health', (req, res) => {

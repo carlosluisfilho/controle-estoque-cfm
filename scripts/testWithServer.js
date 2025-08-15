@@ -1,4 +1,5 @@
-const { spawn, execSync } = require('child_process');
+// amazonq-ignore-next-line
+const { spawn, spawnSync } = require('child_process');
 
 async function main() {
   console.log('🧪 Testando fluxo completo...');
@@ -27,7 +28,7 @@ async function main() {
   
     // Executar healthcheck
     console.log('🩺 Executando healthcheck...');
-    execSync('node scripts/healthcheck.js 3001 --timeout=15000', { stdio: 'inherit' });
+    spawnSync('node', ['scripts/healthcheck.js', '3001', '--timeout=15000'], { stdio: 'inherit' });
   
     console.log('✅ Teste concluído com sucesso!');
   

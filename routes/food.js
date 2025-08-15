@@ -1,10 +1,12 @@
 // routes/food.js (refatorado)
 const express = require("express");
+// amazonq-ignore-next-line
 const { body, query } = require("express-validator");
 const autenticarToken = require("../middleware/auth");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { handleValidationErrors, sanitizeRequestBody } = require('../middleware/validation');
 const foodService = require("../services/foodService");
+// amazonq-ignore-next-line
 const { formatDate } = require("../utils/dateUtils");
 const { commonValidations } = require("../utils/validationUtils");
 

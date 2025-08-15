@@ -1,6 +1,7 @@
 // Utilitário para confirmações de ações
 class ConfirmDialog {
   static show(message, onConfirm, onCancel = null) {
+    const sanitizedMessage = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
     const modal = document.createElement('div');
     modal.className = 'modal fade';
     modal.innerHTML = `
@@ -10,7 +11,7 @@ class ConfirmDialog {
             <h5 class="modal-title">⚠️ Confirmação</h5>
           </div>
           <div class="modal-body">
-            <p>${message}</p>
+            <p>${sanitizedMessage}</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

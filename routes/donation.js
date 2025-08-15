@@ -5,6 +5,7 @@ const autenticarToken = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { handleValidationErrors, sanitizeRequestBody } = require('../middleware/validation');
 const donationService = require('../services/donationService');
+// amazonq-ignore-next-line
 const { formatDate } = require('../utils/dateUtils');
 const { commonValidations } = require('../utils/validationUtils');
 

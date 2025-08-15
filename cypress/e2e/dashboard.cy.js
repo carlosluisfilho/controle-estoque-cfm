@@ -30,18 +30,28 @@ describe('📊 Tela de Dashboard', () => {
         win.localStorage.setItem('token', token);
       },
     });
+    
+    // Aguardar a página carregar completamente
+    cy.get('h1').should('contain', 'Controle de Estoque');
   });
 
   it('Deve exibir os cards de totais com números válidos', () => {
+    // Aguardar os elementos existirem primeiro
+    cy.get('#totalAlimentos', { timeout: 10000 }).should('exist');
+    cy.get('#totalDoacoes', { timeout: 10000 }).should('exist');
+    cy.get('#totalDistribuicoes', { timeout: 10000 }).should('exist');
+    
+    // Aguardar o carregamento dos dados
     cy.get('#totalAlimentos').should('not.contain.text', 'Carregando');
     cy.get('#totalDoacoes').should('not.contain.text', 'Carregando');
     cy.get('#totalDistribuicoes').should('not.contain.text', 'Carregando');
   });
 
   it('Deve renderizar as tabelas de últimos itens, doações e distribuições', () => {
-    cy.get('#tabelaAlimentos').should('exist');
-    cy.get('#tabelaDoacoes').should('exist');
-    cy.get('#tabelaDistribuicoes').should('exist');
+    // Aguardar os elementos existirem com timeout maior
+    cy.get('#tabelaAlimentos', { timeout: 10000 }).should('exist');
+    cy.get('#tabelaDoacoes', { timeout: 10000 }).should('exist');
+    cy.get('#tabelaDistribuicoes', { timeout: 10000 }).should('exist');
 
     // Verificar se as tabelas estão visíveis
     cy.get('#tabelaAlimentos').should('be.visible');

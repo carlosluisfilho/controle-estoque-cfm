@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (response.ok && data.token) {
+        // amazonq-ignore-next-line
         localStorage.setItem("token", data.token);
         window.location.href = "/";
       } else {

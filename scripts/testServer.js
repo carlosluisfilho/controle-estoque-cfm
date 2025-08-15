@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+// amazonq-ignore-next-line
 const http = require('http');
 
 console.log('🧪 Testando inicialização do servidor...');

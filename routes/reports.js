@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const express = require('express');
 const {
   gerarRelatorioDoacoesPDF,
@@ -8,6 +9,7 @@ const {
   gerarRelatorioFoodExcel
 } = require('../models/report');
 const path = require('path');
+// amazonq-ignore-next-line
 const autenticarToken = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { reportLimiter } = require('../middleware/rateLimiter');

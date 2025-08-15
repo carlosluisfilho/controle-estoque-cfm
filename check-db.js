@@ -12,17 +12,17 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
   db.get("SELECT COUNT(*) as total FROM food", (err, row) => {
-    if (err) console.error('Erro food:', err);
+    if (err) console.error('Erro food:', encodeURIComponent(err.message));
     else console.log('📦 Total alimentos:', row.total);
   });
   
   db.get("SELECT COUNT(*) as total FROM donation", (err, row) => {
-    if (err) console.error('Erro donation:', err);
+    if (err) console.error('Erro donation:', encodeURIComponent(err.message));
     else console.log('🎁 Total doações:', row.total);
   });
   
   db.get("SELECT COUNT(*) as total FROM distribution", (err, row) => {
-    if (err) console.error('Erro distribution:', err);
+    if (err) console.error('Erro distribution:', encodeURIComponent(err.message));
     else console.log('📤 Total distribuições:', row.total);
   });
   

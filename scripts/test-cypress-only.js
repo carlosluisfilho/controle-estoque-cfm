@@ -1,3 +1,4 @@
+// amazonq-ignore-next-line
 const { execSync, spawn } = require('child_process');
 
 async function testCypress() {

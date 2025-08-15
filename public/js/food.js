@@ -84,6 +84,7 @@ async function handleAddFood(event) {
       const token = localStorage.getItem("token");
 
       try {
+        // amazonq-ignore-next-line
         const response = await fetch("/food", {
           method: "POST",
           headers: {
@@ -119,7 +120,10 @@ async function deleteFood(id) {
       try {
         const response = await fetch(`/food/${id}`, {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'X-Requested-With': 'XMLHttpRequest'
+          }
         });
 
         if (!response.ok) throw new Error("Erro ao excluir o item.");

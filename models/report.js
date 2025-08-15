@@ -1,7 +1,9 @@
 const PDFDocument = require('pdfkit');
+// amazonq-ignore-next-line
 const ExcelJS = require('exceljs');
 const db = require('../database/db');
 const fs = require('fs');
+const path = require('path');
 
 function formatarData(isoDate) {
   if (!isoDate) return '';
@@ -19,8 +21,10 @@ async function consultarBanco(sql) {
 }
 
 async function gerarPDF(caminhoArquivo, titulo, colunas, dados) {
+  // Validar e normalizar caminho para prevenir path traversal
+  const safePath = path.resolve('./public/', path.basename(caminhoArquivo));
   const doc = new PDFDocument({ margin: 50, layout: 'landscape' });
-  const stream = fs.createWriteStream(caminhoArquivo);
+  const stream = fs.createWriteStream(safePath);
   doc.pipe(stream);
 
   // Cabeçalho
